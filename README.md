@@ -110,4 +110,4 @@ This project is licensed under [insert licensce].
 
 ---
 
-**Song Wars** is a fun, social way to discover new music, challenge your friends, and see whose songs reign supreme. Ready to battle?
+**Song Wars** is a fun, social way to discover new music, challenge your friends, and see whose songs reign supreme.
