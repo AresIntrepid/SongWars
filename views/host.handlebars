@@ -1,0 +1,160 @@
+{{#section 'head'}}
+<script src="/socket.io/socket.io.js"></script>
+{{/section}}
+
+<div class="host-container">
+    <h1>Host Game</h1>
+    
+    <!-- Game Code Display -->
+    <div class="game-code-section">
+        <h2>Game Code:</h2>
+        <div id="game-code" class="game-code">{{gameCode}}</div>
+        <button id="copy-code" class="btn btn-secondary">
+            <span class="copy-text">Copy Code</span>
+            <span class="copied-text" style="display: none">Copied!</span>
+        </button>
+    </div>
+
+    <!-- Game Settings -->
+    <div class="settings-section">
+        <h2>Game Settings</h2>
+        <div class="setting-group">
+            <label for="time-limit">Song Submission Time (seconds):</label>
+            <input type="number" 
+                   id="time-limit" 
+                   min="30" 
+                   max="300" 
+                   value="{{timeLimit}}" 
+                   class="setting-input">
+            <span class="setting-help">Time allowed for players to submit songs (30-300 seconds)</span>
+        </div>
+        
+        <div class="setting-group">
+            <label for="min-players">Minimum Players:</label>
+            <input type="number" 
+                   id="min-players" 
+                   min="{{minPlayers}}" 
+                   max="{{maxPlayers}}" 
+                   value="{{minPlayers}}" 
+                   class="setting-input">
+            <span class="setting-help">Minimum {{minPlayers}} players required to start</span>
+        </div>
+
+        <button id="start-game" class="btn btn-primary">Start Game</button>
+    </div>
+
+    <!-- Player List -->
+    <div class="players-section">
+        <h2>Players (<span id="player-count">{{playerCount}}</span>)</h2>
+        <ul id="player-list" class="player-list">
+            {{#if playerCount}}
+                <li class="player-item">Waiting for players to join...</li>
+            {{/if}}
+        </ul>
+    </div>
+
+    <!-- Game Status -->
+    <div id="game-status" class="status-section" style="display: none;">
+        <h2>Game Status</h2>
+        <div id="status-message"></div>
+        <div id="timer" class="timer"></div>
+        
+        <!-- Song Submissions -->
+        <div id="submissions" class="submissions-section">
+            <h3>Song Submissions</h3>
+            <ul id="submission-list" class="submission-list"></ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    const socket = io();
+    const gameCode = '{{gameCode}}';
+    let playerCount = {{playerCount}};
+
+    // Copy game code functionality
+    document.getElementById('copy-code').addEventListener('click', () => {
+        navigator.clipboard.writeText(gameCode)
+            .then(() => {
+                const btn = document.getElementById('copy-code');
+                btn.querySelector('.copy-text').style.display = 'none';
+                btn.querySelector('.copied-text').style.display = 'inline';
+                setTimeout(() => {
+                    btn.querySelector('.copy-text').style.display = 'inline';
+                    btn.querySelector('.copied-text').style.display = 'none';
+                }, 2000);
+            })
+            .catch(err => console.error('Failed to copy code:', err));
+    });
+
+    // Initialize host socket connection
+    socket.emit('host-game', gameCode);
+
+    // Handle start game
+    document.getElementById('start-game').addEventListener('click', () => {
+        const timeLimit = parseInt(document.getElementById('time-limit').value);
+        const minPlayers = parseInt(document.getElementById('min-players').value);
+        
+        if (playerCount < minPlayers) {
+            alert(`Need at least ${minPlayers} players to start!`);
+            return;
+        }
+
+        socket.emit('start-game', { 
+            gameCode, 
+            timeLimit,
+            minPlayers
+        });
+
+        document.getElementById('game-status').style.display = 'block';
+        document.getElementById('status-message').textContent = 'Game Started! Players are now submitting songs...';
+        startTimer(timeLimit);
+    });
+
+    // Socket event listeners
+    socket.on('player-joined', (data) => {
+        const playerList = document.getElementById('player-list');
+        const playerCountElement = document.getElementById('player-count');
+        
+        if (playerCount === 0) {
+            playerList.innerHTML = ''; // Clear waiting message
+        }
+        
+        const li = document.createElement('li');
+        li.className = 'player-item';
+        li.textContent = data.name;
+        playerList.appendChild(li);
+        
+        playerCount = data.playerCount;
+        playerCountElement.textContent = playerCount;
+    });
+
+    socket.on('song-submitted', (data) => {
+        const submissionList = document.getElementById('submission-list');
+        const li = document.createElement('li');
+        li.className = 'submission-item';
+        li.innerHTML = `${data.playerName} submitted "${data.songName}"`;
+        submissionList.appendChild(li);
+    });
+
+    socket.on('error', (message) => {
+        alert(`Error: ${message}`);
+    });
+
+    function startTimer(duration) {
+        let timeLeft = duration;
+        const timerDisplay = document.getElementById('timer');
+        
+        const timer = setInterval(() => {
+            timerDisplay.textContent = `Time remaining: ${timeLeft}s`;
+            timeLeft--;
+            
+            if (timeLeft < 0) {
+                clearInterval(timer);
+                timerDisplay.textContent = 'Time's up!';
+                document.getElementById('status-message').textContent = 
+                    'Song submission phase ended. Tournament starting...';
+            }
+        }, 1000);
+    }
+</script>

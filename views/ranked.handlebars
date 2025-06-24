@@ -1,0 +1,360 @@
+{{#section 'head'}}
+<style>
+    .ranked-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .page-title {
+        text-align: center;
+        font-size: 2.5em;
+        color: #333;
+        margin-bottom: 10px;
+    }
+    .genre-display {
+        text-align: center;
+        font-size: 1.8em;
+        color: #444;
+        margin-bottom: 40px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .comparison-container {
+        display: flex;
+        justify-content: space-between;
+        padding: 20px;
+        gap: 20px;
+        margin-top: 20px;
+        position: relative;
+        min-height: 600px;
+    }
+    .comparison-container::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 2px;
+        height: 100%;
+        background: #ddd;
+    }
+    .song-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        position: relative;
+        height: 100%;
+    }
+    .song-container:first-child {
+        margin-right: 20px;
+    }
+    .song-container:last-child {
+        margin-left: 20px;
+    }
+    .song-title {
+        font-size: 1.5em;
+        font-weight: bold;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+    .song-artist {
+        color: #666;
+        margin-bottom: 20px;
+        font-size: 1.2em;
+    }
+    .song-player {
+        width: 100%;
+        max-width: 400px;
+        margin-bottom: 20px;
+    }
+    .vote-button {
+        padding: 12px 24px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1.1em;
+        transition: background-color 0.2s;
+        width: 100%;
+        max-width: 200px;
+    }
+    .vote-button:hover {
+        background: #0056b3;
+    }
+    .vote-button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+    }
+    .elo-display {
+        font-size: 1.1em;
+        color: #666;
+        margin-top: 15px;
+        font-weight: 500;
+    }
+    .leaderboard {
+        margin-top: 40px;
+        padding: 20px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .leaderboard-list {
+        list-style: none;
+        padding: 0;
+    }
+    .leaderboard-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+        font-size: 1.1em;
+    }
+    .leaderboard-item:last-child {
+        border-bottom: none;
+    }
+    .rank {
+        font-weight: bold;
+        color: #007bff;
+        min-width: 40px;
+    }
+    .username {
+        flex: 1;
+        margin: 0 15px;
+    }
+    .elo {
+        color: #666;
+        font-weight: 500;
+    }
+    .no-songs-message {
+        text-align: center;
+        padding: 40px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin: 20px 0;
+    }
+    .no-songs-message h2 {
+        color: #666;
+        margin-bottom: 15px;
+    }
+    .no-songs-message p {
+        color: #888;
+        margin-bottom: 20px;
+    }
+    .upload-link {
+        display: inline-block;
+        padding: 10px 20px;
+        background: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+    }
+    .upload-link:hover {
+        background: #0056b3;
+    }
+    .no-users-message {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+        font-style: italic;
+    }
+    .home-button {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        padding: 10px 20px;
+        background: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: 600;
+        transition: background-color 0.2s;
+    }
+    .home-button:hover {
+        background: #0056b3;
+    }
+</style>
+{{/section}}
+
+<a href="/" class="home-button">
+    <i class="fas fa-home"></i> Home
+</a>
+
+<div class="ranked-container">
+    <h1 class="page-title">Ranked</h1>
+    <div class="genre-display" id="genre-display">Loading genre...</div>
+    
+    <div class="comparison-container" id="comparison-container">
+        <div class="song-container" id="song1-container">
+            <div class="song-title" id="song1-title">Loading...</div>
+            <div class="song-artist" id="song1-artist">Loading...</div>
+            <audio class="song-player" id="song1-player" controls></audio>
+            <button class="vote-button" id="vote1-button" disabled>Vote for Song 1</button>
+            <div class="elo-display" id="song1-elo"></div>
+        </div>
+
+        <div class="song-container" id="song2-container">
+            <div class="song-title" id="song2-title">Loading...</div>
+            <div class="song-artist" id="song2-artist">Loading...</div>
+            <audio class="song-player" id="song2-player" controls></audio>
+            <button class="vote-button" id="vote2-button" disabled>Vote for Song 2</button>
+            <div class="elo-display" id="song2-elo"></div>
+        </div>
+    </div>
+
+    <div class="leaderboard">
+        <ul class="leaderboard-list" id="leaderboard-list">
+            {{#if leaderboard.length}}
+                {{#each leaderboard}}
+                <li class="leaderboard-item">
+                    <span class="rank">#{{add @index 1}}</span>
+                    <span class="username">{{this.username}}</span>
+                    <span class="elo">{{this.elo}} ELO</span>
+                </li>
+                {{/each}}
+            {{else}}
+                <li class="no-users-message">No users in the leaderboard yet</li>
+            {{/if}}
+        </ul>
+    </div>
+</div>
+
+{{#section 'scripts'}}
+<script src="https://kit.fontawesome.com/your-font-awesome-kit.js"></script>
+<script>
+    let currentSongs = null;
+
+    async function loadNewComparison() {
+        try {
+            const response = await fetch('/ranked/get-comparison');
+            const data = await response.json();
+            
+            if (response.ok) {
+                currentSongs = data;
+                
+                // Update genre display
+                document.getElementById('genre-display').textContent = `Genre: ${data.genre}`;
+                
+                // Update song 1
+                document.getElementById('song1-title').textContent = data.song1.title;
+                document.getElementById('song1-artist').textContent = `by ${data.song1.username}`;
+                document.getElementById('song1-player').src = data.song1.url;
+                document.getElementById('song1-elo').textContent = `${data.song1.elo} ELO`;
+                
+                // Update song 2
+                document.getElementById('song2-title').textContent = data.song2.title;
+                document.getElementById('song2-artist').textContent = `by ${data.song2.username}`;
+                document.getElementById('song2-player').src = data.song2.url;
+                document.getElementById('song2-elo').textContent = `${data.song2.elo} ELO`;
+                
+                // Enable vote buttons
+                document.getElementById('vote1-button').disabled = false;
+                document.getElementById('vote2-button').disabled = false;
+            } else {
+                showNoSongsMessage();
+            }
+        } catch (error) {
+            console.error('Error loading comparison:', error);
+            showNoSongsMessage();
+        }
+    }
+
+    function showNoSongsMessage() {
+        const container = document.getElementById('comparison-container');
+        container.innerHTML = `
+            <div class="no-songs-message">
+                <h2>No Songs Available</h2>
+                <p>There aren't enough songs in the database for ranked mode yet.</p>
+                <p>Upload some songs to your profile to get started!</p>
+                <a href="/profile" class="upload-link">Go to Profile</a>
+            </div>
+        `;
+    }
+
+    async function submitVote(winnerId, loserId) {
+        try {
+            const response = await fetch('/ranked/vote', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ winnerId, loserId })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                // Disable vote buttons
+                document.getElementById('vote1-button').disabled = true;
+                document.getElementById('vote2-button').disabled = true;
+                
+                // Show ELO changes
+                const eloChanges = data.eloChanges;
+                document.getElementById('song1-elo').textContent = 
+                    `${currentSongs.song1.elo} ELO (${eloChanges.winner > 0 ? '+' : ''}${eloChanges.winner})`;
+                document.getElementById('song2-elo').textContent = 
+                    `${currentSongs.song2.elo} ELO (${eloChanges.loser > 0 ? '+' : ''}${eloChanges.loser})`;
+                
+                // Load new comparison after a delay
+                setTimeout(loadNewComparison, 3000);
+            } else {
+                console.error('Failed to submit vote:', data.error);
+            }
+        } catch (error) {
+            console.error('Error submitting vote:', error);
+        }
+    }
+
+    // Set up event listeners
+    document.getElementById('vote1-button').addEventListener('click', () => {
+        if (currentSongs) {
+            submitVote(currentSongs.song1.id, currentSongs.song2.id);
+        }
+    });
+
+    document.getElementById('vote2-button').addEventListener('click', () => {
+        if (currentSongs) {
+            submitVote(currentSongs.song2.id, currentSongs.song1.id);
+        }
+    });
+
+    // Load initial comparison immediately when page loads
+    loadNewComparison();
+
+    // Update leaderboard periodically
+    async function updateLeaderboard() {
+        try {
+            const response = await fetch('/ranked/leaderboard');
+            const data = await response.json();
+            
+            if (response.ok) {
+                const leaderboardList = document.getElementById('leaderboard-list');
+                if (data.length === 0) {
+                    leaderboardList.innerHTML = '<li class="no-users-message">No users in the leaderboard yet</li>';
+                } else {
+                    leaderboardList.innerHTML = data.map((user, index) => `
+                        <li class="leaderboard-item">
+                            <span class="rank">#${index + 1}</span>
+                            <span class="username">${user.username}</span>
+                            <span class="elo">${user.elo} ELO</span>
+                        </li>
+                    `).join('');
+                }
+            }
+        } catch (error) {
+            console.error('Error updating leaderboard:', error);
+        }
+    }
+
+    // Update leaderboard every 30 seconds
+    setInterval(updateLeaderboard, 30000);
+</script>
+{{/section}} 

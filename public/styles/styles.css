@@ -1,0 +1,349 @@
+/* Global Variables */
+:root {
+    --kahoot-purple: #46178f;
+    --kahoot-pink: #f14d9e;
+    --kahoot-blue: #2d9cdb;
+    --kahoot-yellow: #ffd700;
+    --background-color: #f6f7fb;
+    --text-color: #333;
+    --border-radius: 4px;
+    --box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Base Styles */
+body {
+    font-family: 'Montserrat', 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Typography */
+h1, h2, h3, h4 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    color: var(--kahoot-purple);
+}
+
+h1 {
+    font-size: 3rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--kahoot-purple);
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.btn-primary {
+    background-color: var(--kahoot-purple);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #5a1cb8;
+}
+
+.btn-secondary {
+    background-color: var(--kahoot-pink);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #ff60b1;
+}
+
+/* Forms */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    border: 2px solid #e0e0e0;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    transition: border-color 0.3s;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--kahoot-purple);
+}
+
+/* Game Code Display */
+.game-code {
+    font-size: 3rem;
+    font-weight: bold;
+    text-align: center;
+    padding: 2rem;
+    background: linear-gradient(135deg, var(--kahoot-purple), var(--kahoot-pink));
+    color: white;
+    border-radius: 12px;
+    margin: 2rem 0;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Player List */
+.player-list {
+    list-style: none;
+    padding: 0;
+}
+
+.player-item {
+    padding: 1rem;
+    margin: 0.5rem 0;
+    background-color: white;
+    border-radius: 50px;
+    box-shadow: var(--box-shadow);
+    transition: transform 0.2s;
+    border-left: 5px solid var(--kahoot-blue);
+}
+
+.player-item:hover {
+    transform: translateX(5px);
+}
+
+/* Timer */
+.timer {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--kahoot-pink);
+    text-align: center;
+    margin: 1rem 0;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: var(--box-shadow);
+}
+
+/* Tournament Bracket */
+.matchup {
+    margin: 1.5rem 0;
+    padding: 1.5rem;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: var(--box-shadow);
+    border: 2px solid var(--kahoot-purple);
+}
+
+.matchup-songs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.song-entry {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f8f9fa, #ffffff);
+    border-radius: 12px;
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.song-entry:hover {
+    transform: translateY(-5px);
+}
+
+.song-player {
+    width: 100%;
+    margin: 1rem 0;
+    border-radius: 8px;
+}
+
+/* Winner Section */
+.winner-announcement {
+    text-align: center;
+    padding: 3rem;
+    background: linear-gradient(135deg, var(--kahoot-purple), var(--kahoot-pink));
+    border-radius: 12px;
+    color: white;
+    animation: fadeIn 0.5s ease-in, pulse 2s infinite;
+}
+
+/* Loading and Progress */
+.loader {
+    width: 60px;
+    height: 60px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid var(--kahoot-purple);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 2rem auto;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 12px;
+    background-color: #f0f0f0;
+    border-radius: 50px;
+    overflow: hidden;
+    margin: 1rem 0;
+}
+
+.progress {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--kahoot-purple), var(--kahoot-pink));
+    transition: width 0.3s ease;
+}
+
+/* Error Messages */
+.error-message {
+    color: white;
+    background-color: var(--kahoot-pink);
+    padding: 1rem;
+    border-radius: 50px;
+    margin: 1rem 0;
+    text-align: center;
+    animation: shake 0.5s ease-in-out;
+}
+
+/* Landing Page */
+.landing-container {
+    text-align: center;
+    padding: 3rem 0;
+    background: linear-gradient(135deg, rgba(70, 23, 143, 0.1), rgba(241, 77, 158, 0.1));
+    border-radius: 20px;
+    margin: 2rem auto;
+}
+
+/* Button container for landing page */
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin: 0 0 3rem 0; 
+    padding: 0 2rem;
+}
+
+/* Features Section */
+.features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+    padding: 0 2rem;
+}
+
+.feature {
+    padding: 2rem;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: var(--box-shadow);
+    transition: transform 0.2s;
+}
+
+.feature:hover {
+    transform: translateY(-10px);
+}
+
+/* Intro Text */
+.intro-text {
+    font-size: 1.2rem;
+    color: var(--kahoot-purple);
+    margin-bottom: 3rem;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 2rem 0;
+    margin-top: 2rem;
+    color: var(--kahoot-purple);
+    font-size: 0.9rem;
+    background-color: white;
+    border-top: 3px solid var(--kahoot-pink);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    .matchup-songs {
+        grid-template-columns: 1fr;
+    }
+
+    .button-container {
+        flex-direction: column;
+        padding: 0 2rem;
+    }
+
+    .button-container .btn {
+        width: 100%;
+        margin: 0.5rem 0;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    .game-code {
+        font-size: 2rem;
+    }
+
+    .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin: 2rem 0;
+        padding: 0 2rem;
+    }
+}
+
+/* Import Montserrat font */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');

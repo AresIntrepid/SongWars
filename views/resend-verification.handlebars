@@ -1,0 +1,162 @@
+{{#section 'head'}}
+<style>
+    .auth-container {
+        max-width: 400px;
+        margin: 40px auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .auth-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    .auth-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .form-group label {
+        font-weight: 600;
+        color: #333;
+    }
+    .form-group input {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+    .btn {
+        padding: 12px;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .btn-primary {
+        background: #007bff;
+        color: white;
+    }
+    .btn-primary:hover {
+        background: #0056b3;
+    }
+    .auth-links {
+        margin-top: 20px;
+        text-align: center;
+    }
+    .auth-links a {
+        color: #007bff;
+        text-decoration: none;
+    }
+    .auth-links a:hover {
+        text-decoration: underline;
+    }
+    .error-message {
+        color: #dc3545;
+        background: #f8d7da;
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+    .success-message {
+        color: #28a745;
+        background: #d4edda;
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+</style>
+{{/section}}
+
+<div class="auth-container">
+    <div class="auth-header">
+        <h1>Resend Verification Code</h1>
+        <p>Enter your email address to receive a new verification code</p>
+    </div>
+
+    {{#if error}}
+    <div class="error-message">
+        {{error}}
+    </div>
+    {{/if}}
+
+    {{#if success}}
+    <div class="success-message">
+        {{success}}
+    </div>
+    {{/if}}
+
+    <form class="auth-form" id="resend-form">
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Resend Code</button>
+    </form>
+
+    <div class="auth-links">
+        <p>Already verified? <a href="/auth/login">Login here</a></p>
+    </div>
+</div>
+
+{{#section 'scripts'}}
+<script>
+    document.getElementById('resend-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        
+        try {
+            const response = await fetch('/auth/resend-verification', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                const successDiv = document.createElement('div');
+                successDiv.className = 'success-message';
+                successDiv.textContent = 'Verification code sent successfully!';
+                document.querySelector('.auth-container').insertBefore(
+                    successDiv,
+                    document.querySelector('.auth-form')
+                );
+                document.getElementById('resend-form').reset();
+                setTimeout(() => {
+                    window.location.href = '/auth/verify-email';
+                }, 2000);
+            } else {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.textContent = data.error || 'Failed to resend verification code';
+                document.querySelector('.auth-container').insertBefore(
+                    errorDiv,
+                    document.querySelector('.auth-form')
+                );
+            }
+        } catch (error) {
+            console.error('Resend verification error:', error);
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = 'Failed to resend verification code. Please try again.';
+            document.querySelector('.auth-container').insertBefore(
+                errorDiv,
+                document.querySelector('.auth-form')
+            );
+        }
+    });
+</script>
+{{/section}} 

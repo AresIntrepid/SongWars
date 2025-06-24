@@ -1,0 +1,114 @@
+{{!-- Main container for the error page --}}
+<div class="error-container">
+    {{!-- Error icon --}}
+    <div class="error-icon">
+        <i class="fas fa-exclamation-circle"></i>
+    </div>
+
+    {{!-- Error message --}}
+    <h1 class="error-title">{{message}}</h1>
+
+    {{!-- Error details (only shown in development) --}}
+    {{#if error}}
+        <div class="error-details">
+            <pre>{{error.stack}}</pre>
+        </div>
+    {{/if}}
+
+    {{!-- Action buttons --}}
+    <div class="error-actions">
+        <a href="/" class="btn btn-primary">
+            <i class="fas fa-home"></i>
+            Back to Home
+        </a>
+        <button onclick="history.back()" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i>
+            Go Back
+        </button>
+    </div>
+</div>
+
+{{!-- Styles for the error page --}}
+<style>
+    /* Error container styles */
+    .error-container {
+        max-width: 600px;
+        margin: 4rem auto;
+        padding: 2rem;
+        text-align: center;
+        background: #2a2a2a;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    /* Error icon styles */
+    .error-icon {
+        font-size: 4rem;
+        color: #dc3545;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Error title styles */
+    .error-title {
+        color: #fff;
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Error details styles */
+    .error-details {
+        background: #1a1a1a;
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 2rem;
+        text-align: left;
+        overflow-x: auto;
+    }
+
+    .error-details pre {
+        color: #ccc;
+        font-family: monospace;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    /* Action buttons styles */
+    .error-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        font-weight: bold;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: #007bff;
+        color: #fff;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: #fff;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .btn i {
+        font-size: 1.1rem;
+    }
+</style> 

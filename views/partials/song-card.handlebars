@@ -1,0 +1,265 @@
+{{!-- Song card container --}}
+<div class="song-card">
+    {{!-- Song information section --}}
+    <div class="song-info">
+        {{!-- Song title --}}
+        <h3 class="song-title">{{title}}</h3>
+
+        {{!-- Artist information --}}
+        <div class="artist-info">
+            {{!-- Artist avatar --}}
+            <div class="artist-avatar">
+                <img src="{{artist.profilePicture}}" alt="{{artist.username}}'s profile">
+            </div>
+
+            {{!-- Artist name and ELO --}}
+            <div class="artist-details">
+                <span class="artist-name">{{artist.username}}</span>
+                <span class="artist-elo">ELO: {{artist.elo}}</span>
+            </div>
+        </div>
+
+        {{!-- Song metadata --}}
+        <div class="song-meta">
+            <span class="genre">{{genre}}</span>
+            <span class="upload-date">Uploaded: {{formatDate uploadDate}}</span>
+        </div>
+    </div>
+
+    {{!-- Audio player section --}}
+    <div class="audio-player">
+        <audio controls>
+            <source src="{{url}}" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+
+    {{!-- Song actions section --}}
+    <div class="song-actions">
+        {{!-- Vote buttons (only shown in ranked view) --}}
+        {{#if showVoteButtons}}
+            <div class="vote-buttons">
+                <button class="vote-btn vote-up" data-song-id="{{_id}}">
+                    <i class="fas fa-thumbs-up"></i>
+                    Vote Up
+                </button>
+                <button class="vote-btn vote-down" data-song-id="{{_id}}">
+                    <i class="fas fa-thumbs-down"></i>
+                    Vote Down
+                </button>
+            </div>
+        {{/if}}
+
+        {{!-- Delete button (only shown for song owner) --}}
+        {{#if isOwner}}
+            <button class="delete-btn" data-song-id="{{_id}}">
+                <i class="fas fa-trash"></i>
+                Delete
+            </button>
+        {{/if}}
+    </div>
+</div>
+
+{{!-- Styles for the song card --}}
+<style>
+    /* Song card container styles */
+    .song-card {
+        background: #2a2a2a;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Song info styles */
+    .song-info {
+        margin-bottom: 1.5rem;
+    }
+
+    .song-title {
+        color: #fff;
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Artist info styles */
+    .artist-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .artist-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        overflow: hidden;
+    }
+
+    .artist-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .artist-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .artist-name {
+        color: #fff;
+        font-weight: bold;
+    }
+
+    .artist-elo {
+        color: #007bff;
+        font-size: 0.9rem;
+    }
+
+    /* Song meta styles */
+    .song-meta {
+        display: flex;
+        gap: 1rem;
+        color: #ccc;
+        font-size: 0.9rem;
+    }
+
+    .genre {
+        color: #28a745;
+    }
+
+    /* Audio player styles */
+    .audio-player {
+        width: 100%;
+        margin-bottom: 1.5rem;
+    }
+
+    .audio-player audio {
+        width: 100%;
+    }
+
+    /* Song actions styles */
+    .song-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* Vote buttons styles */
+    .vote-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .vote-btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .vote-up {
+        background: #28a745;
+        color: #fff;
+    }
+
+    .vote-down {
+        background: #dc3545;
+        color: #fff;
+    }
+
+    .vote-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    /* Delete button styles */
+    .delete-btn {
+        padding: 0.5rem 1rem;
+        background: #dc3545;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .delete-btn:hover {
+        background: #c82333;
+        transform: translateY(-2px);
+    }
+</style>
+
+{{!-- JavaScript for song card functionality --}}
+<script>
+    // Handle vote buttons
+    document.querySelectorAll('.vote-btn').forEach(button => {
+        button.addEventListener('click', async function() {
+            const songId = this.dataset.songId;
+            const isUpvote = this.classList.contains('vote-up');
+
+            try {
+                const response = await fetch('/ranked/vote', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        winnerId: isUpvote ? songId : null,
+                        loserId: isUpvote ? null : songId
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to process vote');
+                }
+
+                // Disable vote buttons after voting
+                document.querySelectorAll('.vote-btn').forEach(btn => {
+                    btn.disabled = true;
+                });
+
+                // Show success message
+                const message = isUpvote ? 'Voted up!' : 'Voted down!';
+                alert(message);
+            } catch (error) {
+                console.error('Error processing vote:', error);
+                alert('Failed to process vote. Please try again.');
+            }
+        });
+    });
+
+    // Handle delete button
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', async function() {
+            if (!confirm('Are you sure you want to delete this song?')) {
+                return;
+            }
+
+            const songId = this.dataset.songId;
+            try {
+                const response = await fetch(`/songs/${songId}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to delete song');
+                }
+
+                // Remove song card from DOM
+                this.closest('.song-card').remove();
+            } catch (error) {
+                console.error('Error deleting song:', error);
+                alert('Failed to delete song. Please try again.');
+            }
+        });
+    });
+</script> 

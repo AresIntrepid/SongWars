@@ -1,0 +1,191 @@
+{{!-- Main container for the home page --}}
+<div class="container">
+    {{!-- Hero section with welcome message --}}
+    <div class="hero">
+        <h1>Welcome to SongWars</h1>
+        <p>Battle your music against other artists in this competitive music platform!</p>
+    </div>
+
+    {{!-- Feature highlights section --}}
+    <div class="features">
+        <div class="feature-card">
+            <h2>Ranked Battles</h2>
+            <p>Compete in ranked matches and climb the leaderboard</p>
+        </div>
+        <div class="feature-card">
+            <h2>Genre Matching</h2>
+            <p>Get matched with songs from the same genre for fair battles</p>
+        </div>
+        <div class="feature-card">
+            <h2>ELO System</h2>
+            <p>Fair matchmaking based on your skill level</p>
+        </div>
+    </div>
+
+    {{!-- Call to action buttons --}}
+    <div class="cta-buttons">
+        {{#if user}}
+            {{!-- Logged in user actions --}}
+            <a href="/ranked" class="btn btn-primary">Start Ranked Battle</a>
+            <a href="/profile" class="btn btn-secondary">View Profile</a>
+        {{else}}
+            {{!-- Guest user actions --}}
+            <a href="/auth/register" class="btn btn-primary">Sign Up</a>
+            <a href="/auth/login" class="btn btn-secondary">Login</a>
+        {{/if}}
+    </div>
+
+    {{!-- Top players section --}}
+    <div class="top-players">
+        <h2>Top Players</h2>
+        <div class="player-list">
+            {{#each topUsers}}
+                <div class="player-card">
+                    <img src="{{this.profilePicture}}" alt="{{this.username}}'s profile" class="player-avatar">
+                    <div class="player-info">
+                        <h3>{{this.username}}</h3>
+                        <p>ELO: {{this.elo}}</p>
+                        <p>Wins: {{this.wins}} | Losses: {{this.losses}}</p>
+                    </div>
+                </div>
+            {{/each}}
+        </div>
+    </div>
+</div>
+
+{{!-- Styles for the home page --}}
+<style>
+    /* Main container styles */
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    /* Hero section styles */
+    .hero {
+        text-align: center;
+        padding: 4rem 0;
+        background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+        border-radius: 10px;
+        margin-bottom: 3rem;
+    }
+
+    .hero h1 {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: #fff;
+    }
+
+    .hero p {
+        font-size: 1.2rem;
+        color: #ccc;
+    }
+
+    /* Feature cards styles */
+    .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .feature-card {
+        background: #2a2a2a;
+        padding: 2rem;
+        border-radius: 8px;
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .feature-card h2 {
+        color: #fff;
+        margin-bottom: 1rem;
+    }
+
+    .feature-card p {
+        color: #ccc;
+    }
+
+    /* CTA buttons styles */
+    .cta-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 3rem;
+    }
+
+    .btn {
+        padding: 0.8rem 1.5rem;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: #007bff;
+        color: #fff;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: #fff;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    /* Top players section styles */
+    .top-players {
+        background: #2a2a2a;
+        padding: 2rem;
+        border-radius: 8px;
+    }
+
+    .top-players h2 {
+        color: #fff;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .player-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .player-card {
+        background: #1a1a1a;
+        padding: 1rem;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .player-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .player-info h3 {
+        color: #fff;
+        margin: 0;
+        font-size: 1.1rem;
+    }
+
+    .player-info p {
+        color: #ccc;
+        margin: 0.3rem 0;
+        font-size: 0.9rem;
+    }
+</style> 

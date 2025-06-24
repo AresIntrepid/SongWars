@@ -1,0 +1,162 @@
+{{!-- Main navigation header --}}
+<header class="header">
+    {{!-- Logo and brand name --}}
+    <div class="brand">
+        <a href="/" class="logo">
+            <img src="/images/logo.png" alt="SongWars Logo">
+        </a>
+        <h1 class="site-title">SongWars</h1>
+    </div>
+
+    {{!-- Navigation menu --}}
+    <nav class="nav-menu">
+        {{!-- Home link --}}
+        <a href="/" class="nav-link {{#if (eq currentPage 'home')}}active{{/if}}">
+            <i class="fas fa-home"></i>
+            Home
+        </a>
+
+        {{!-- Ranked link --}}
+        <a href="/ranked" class="nav-link {{#if (eq currentPage 'ranked')}}active{{/if}}">
+            <i class="fas fa-trophy"></i>
+            Ranked
+        </a>
+
+        {{!-- Conditional navigation based on authentication --}}
+        {{#if user}}
+            {{!-- Profile link for logged-in users --}}
+            <a href="/profile" class="nav-link {{#if (eq currentPage 'profile')}}active{{/if}}">
+                <i class="fas fa-user"></i>
+                Profile
+            </a>
+
+            {{!-- Logout button --}}
+            <a href="/auth/logout" class="nav-link">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </a>
+        {{else}}
+            {{!-- Login link for guests --}}
+            <a href="/auth/login" class="nav-link {{#if (eq currentPage 'login')}}active{{/if}}">
+                <i class="fas fa-sign-in-alt"></i>
+                Login
+            </a>
+
+            {{!-- Register link for guests --}}
+            <a href="/auth/register" class="nav-link {{#if (eq currentPage 'register')}}active{{/if}}">
+                <i class="fas fa-user-plus"></i>
+                Register
+            </a>
+        {{/if}}
+    </nav>
+
+    {{!-- User info section (only shown when logged in) --}}
+    {{#if user}}
+        <div class="user-info">
+            {{!-- Profile picture --}}
+            <div class="profile-picture">
+                <img src="{{user.profilePicture}}" alt="{{user.username}}'s profile">
+            </div>
+
+            {{!-- Username and ELO --}}
+            <div class="user-details">
+                <span class="username">{{user.username}}</span>
+                <span class="elo">ELO: {{user.elo}}</span>
+            </div>
+        </div>
+    {{/if}}
+</header>
+
+{{!-- Styles for the header --}}
+<style>
+    /* Header container styles */
+    .header {
+        background: #2a2a2a;
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Brand styles */
+    .brand {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .logo img {
+        height: 40px;
+        width: auto;
+    }
+
+    .site-title {
+        color: #fff;
+        font-size: 1.5rem;
+        margin: 0;
+    }
+
+    /* Navigation menu styles */
+    .nav-menu {
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+    }
+
+    .nav-link {
+        color: #ccc;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+
+    .nav-link:hover {
+        color: #fff;
+        background: rgba(255,255,255,0.1);
+    }
+
+    .nav-link.active {
+        color: #007bff;
+        background: rgba(0,123,255,0.1);
+    }
+
+    /* User info styles */
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .profile-picture {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        overflow: hidden;
+    }
+
+    .profile-picture img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .user-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .username {
+        color: #fff;
+        font-weight: bold;
+    }
+
+    .elo {
+        color: #007bff;
+        font-size: 0.9rem;
+    }
+</style> 

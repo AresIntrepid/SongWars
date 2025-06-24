@@ -1,0 +1,104 @@
+{{#section 'head'}}
+<script src="/socket.io/socket.io.js"></script>
+{{/section}}
+
+<div class="game-container">
+    <h1>SongWars</h1>
+    
+    <div class="game-info">
+        <h2>Game Code: <span id="game-code">{{gameCode}}</span></h2>
+        <div id="timer" class="timer"></div>
+    </div>
+
+    <!-- Waiting Section -->
+    <div id="waiting-section" class="section">
+        <h3>Waiting for game to start...</h3>
+        <p>The host will start the game soon.</p>
+        <div class="loader"></div>
+    </div>
+
+    <!-- Upload Section -->
+    <div id="upload-section" class="section" style="display: none;">
+        <h3>Submit Your Song</h3>
+        <div class="upload-form">
+            <div class="form-group">
+                <label for="song-file">Choose Song File:</label>
+                <input type="file" 
+                       id="song-file" 
+                       accept="audio/*" 
+                       class="file-input">
+                <span class="input-help">MP3 files only, max 10MB</span>
+            </div>
+
+            <div class="form-group">
+                <label for="song-name">Song Name:</label>
+                <input type="text" 
+                       id="song-name" 
+                       placeholder="Enter song name" 
+                       class="form-input">
+            </div>
+
+            <button id="submit-song" class="btn btn-primary">Submit Song</button>
+        </div>
+
+        <div id="upload-progress" class="progress-container" style="display: none;">
+            <h4>Uploading Song...</h4>
+            <div class="progress-bar">
+                <div class="progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tournament Section -->
+    <div id="bracket-section" class="section" style="display: none;">
+        <h3>Tournament Bracket</h3>
+        <div id="round-info"></div>
+        <div id="matchups" class="tournament-bracket"></div>
+    </div>
+
+    <!-- Winner Section -->
+    <div id="winner-section" class="section" style="display: none;">
+        <h3>🎉 Winner! 🎉</h3>
+        <div id="winner-display" class="winner-display"></div>
+    </div>
+
+    <!-- Error Messages -->
+    <div id="error-container" class="error-message" style="display: none;"></div>
+</div>
+
+<script src="/scripts/game.js"></script>
+<script>
+    // Initialize game when document loads
+    document.addEventListener('DOMContentLoaded', () => {
+        const gameCode = document.getElementById('game-code').textContent;
+        const game = new SongWarsGame(gameCode);
+
+        // Handle song submission
+        document.getElementById('submit-song').addEventListener('click', () => {
+            const fileInput = document.getElementById('song-file');
+            const nameInput = document.getElementById('song-name');
+            
+            if (!fileInput.files[0]) {
+                alert('Please select a song file');
+                return;
+            }
+
+            if (!nameInput.value.trim()) {
+                alert('Please enter a song name');
+                return;
+            }
+
+            const songFile = fileInput.files[0];
+            if (songFile.size > 10 * 1024 * 1024) { // 10MB limit
+                alert('File size must be less than 10MB');
+                return;
+            }
+
+            // Show upload progress
+            document.getElementById('upload-progress').style.display = 'block';
+            
+            // Submit the song
+            game.submitSong(songFile, nameInput.value.trim());
+        });
+    });
+</script>

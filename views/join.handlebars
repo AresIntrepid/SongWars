@@ -1,0 +1,118 @@
+{{#section 'head'}}
+<script src="/socket.io/socket.io.js"></script>
+{{/section}}
+
+<div class="join-container">
+    <h1>Join Game</h1>
+    
+    <!-- Join Form -->
+    <div class="join-form">
+        <div class="form-group">
+            <label for="game-code">Game Code:</label>
+            <input type="text" 
+                   id="game-code" 
+                   placeholder="Enter 6-digit code" 
+                   maxlength="6" 
+                   class="form-input compact"
+                   autocomplete="off"
+                   oninput="this.value = this.value.toUpperCase()">
+        </div>
+        
+        <div class="form-group">
+            <label for="player-name">Your Name:</label>
+            <input type="text" 
+                   id="player-name" 
+                   placeholder="Enter your name" 
+                   maxlength="20" 
+                   class="form-input compact"
+                   autocomplete="off">
+        </div>
+
+        <button id="join-button" class="btn btn-primary">Join Game</button>
+    </div>
+
+    <!-- Error Display -->
+    <div id="error-message" class="error-message" style="display: none;"></div>
+
+    <!-- Waiting Screen -->
+    <div id="waiting-screen" class="waiting-screen" style="display: none;">
+        <h2>Joining Game...</h2>
+        <div class="loader"></div>
+        <p>Please wait while we connect you to the game</p>
+    </div>
+</div>
+
+<script>
+    const socket = io();
+    let joined = false;
+
+    // Handle join button click
+    document.getElementById('join-button').addEventListener('click', joinGame);
+    
+    // Also allow joining with Enter key
+    document.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !joined) {
+            joinGame();
+        }
+    });
+
+    function joinGame() {
+        const gameCodeInput = document.getElementById('game-code');
+        const playerNameInput = document.getElementById('player-name');
+        const errorDisplay = document.getElementById('error-message');
+        
+        // Reset error message
+        errorDisplay.style.display = 'none';
+        
+        // Get and validate input
+        const gameCode = gameCodeInput.value.toUpperCase();
+        const playerName = playerNameInput.value.trim();
+        
+        // Validate game code
+        if (!gameCode || gameCode.length !== 6) {
+            showError('Please enter a valid 6-digit game code');
+            gameCodeInput.focus();
+            return;
+        }
+        
+        // Validate player name
+        if (!playerName || playerName.length < 2) {
+            showError('Please enter a name (minimum 2 characters)');
+            playerNameInput.focus();
+            return;
+        }
+
+        // Show waiting screen and hide form
+        document.getElementById('waiting-screen').style.display = 'block';
+        document.querySelector('.join-form').style.display = 'none';
+        
+        // Attempt to join game
+        socket.emit('join-game', { gameCode, playerName });
+    }
+
+    // Socket event handlers
+    socket.on('join-success', () => {
+        joined = true;
+        window.location.href = `/game/${document.getElementById('game-code').value.toUpperCase()}`;
+    });
+
+    socket.on('game-started', () => {
+        if (!joined) {
+            showError('This game has already started');
+            document.getElementById('waiting-screen').style.display = 'none';
+            document.querySelector('.join-form').style.display = 'block';
+        }
+    });
+
+    socket.on('error', (message) => {
+        showError(message);
+        document.getElementById('waiting-screen').style.display = 'none';
+        document.querySelector('.join-form').style.display = 'block';
+    });
+
+    function showError(message) {
+        const errorDisplay = document.getElementById('error-message');
+        errorDisplay.textContent = message;
+        errorDisplay.style.display = 'block';
+    }
+</script>

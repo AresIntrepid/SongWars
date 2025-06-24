@@ -1,0 +1,135 @@
+{{!-- Main footer section --}}
+<footer class="footer">
+    {{!-- Footer content container --}}
+    <div class="footer-content">
+        {{!-- Copyright information --}}
+        <div class="copyright">
+            <p>&copy; {{formatDate (now) "YYYY"}} SongWars. All rights reserved.</p>
+        </div>
+
+        {{!-- Footer links --}}
+        <div class="footer-links">
+            {{!-- Quick links --}}
+            <div class="link-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/ranked">Ranked</a></li>
+                    <li><a href="/profile">Profile</a></li>
+                </ul>
+            </div>
+
+            {{!-- Support links --}}
+            <div class="link-section">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="/faq">FAQ</a></li>
+                    <li><a href="/contact">Contact Us</a></li>
+                    <li><a href="/terms">Terms of Service</a></li>
+                </ul>
+            </div>
+
+            {{!-- Social media links --}}
+            <div class="link-section">
+                <h3>Connect With Us</h3>
+                <div class="social-links">
+                    <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-discord"></i></a>
+                </div>
+            </div>
+        </div>
+
+        {{!-- Made with love message --}}
+        <div class="made-with">
+            <p>Made with <i class="fas fa-heart"></i> for music lovers</p>
+        </div>
+    </div>
+</footer>
+
+{{!-- Styles for the footer --}}
+<style>
+    /* Footer container styles */
+    .footer {
+        background: #2a2a2a;
+        padding: 3rem 0;
+        margin-top: 4rem;
+    }
+
+    /* Footer content styles */
+    .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+
+    /* Copyright styles */
+    .copyright {
+        text-align: center;
+        color: #ccc;
+        margin-bottom: 2rem;
+    }
+
+    /* Footer links container styles */
+    .footer-links {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Link section styles */
+    .link-section h3 {
+        color: #fff;
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+    }
+
+    .link-section ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .link-section ul li {
+        margin-bottom: 0.5rem;
+    }
+
+    .link-section ul li a {
+        color: #ccc;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .link-section ul li a:hover {
+        color: #fff;
+    }
+
+    /* Social links styles */
+    .social-links {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .social-link {
+        color: #ccc;
+        font-size: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .social-link:hover {
+        color: #fff;
+        transform: translateY(-3px);
+    }
+
+    /* Made with love message styles */
+    .made-with {
+        text-align: center;
+        color: #ccc;
+    }
+
+    .made-with i {
+        color: #dc3545;
+        margin: 0 0.3rem;
+    }
+</style> 
