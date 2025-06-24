@@ -106,7 +106,7 @@ graph TB
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under [insert licensce].
 
 ---
 
