@@ -1,4 +1,243 @@
 {{#section 'head'}}
+{{/section}}
+
+<!-- Navigation bar -->
+<div class="nav-bar">
+    <div class="nav-buttons">
+        <a href="/" class="btn btn-home">Home</a>
+        <a href="/auth/logout" class="btn">Logout</a>
+    </div>
+</div>
+
+<!--########################-->
+<!-- Main profile container -->
+<!--########################-->
+<div class="profile-container">
+    <!-- Profile header section -->
+    <div class="profile-header">
+        <!-- Profile picture section -->
+        <div class="profile-picture">
+            <!-- Profile picture content container -->
+            <div class="profile-picture-content">
+                {{#if user.profilePicture}}
+                    <!-- Display user's profile picture if available -->
+                    <img src="{{user.profilePicture}}" alt="Profile Picture" id="profile-picture">
+                {{else}}
+                    <!-- Display default avatar if no profile picture -->
+                    <span class="default-avatar">👤</span>
+                {{/if}}
+            </div>
+        </div>
+
+        <!-- Profile picture upload form -->
+        <div class="profile-picture-form">
+            <div class="file-input-wrapper">
+                <label for="profile-picture-input" class="file-input-label"></label>
+                <input type="file" id="profile-picture-input" accept="image/*">
+            </div>
+        </div>
+
+        <!-- User information section -->
+        <div class="profile-info">
+            <!-- Username -->
+            <h1>{{user.username}}</h1>
+            <p>Rank: {{getRank user.elo}}</p>
+            <p>ELO: {{user.elo}}</p>
+
+            {{!-- Stats grid --}}
+            <div class="profile-stats">
+                <div class="stat-box">
+                    <h3>Wins</h3>
+                    <p>{{user.wins}}</p>
+                </div>
+                <div class="stat-box">
+                    <h3>Losses</h3>
+                    <p>{{user.losses}}</p>
+                </div>
+                <div class="stat-box">
+                    <h3>Total Matches</h3>
+                    <p>{{add user.wins user.losses}}</p>
+                </div>
+                <div class="stat-box">
+                    <h3>Win Rate</h3>
+                    <p>{{#if (add user.wins user.losses)}}{{multiply (divide user.wins (add user.wins user.losses)) 100}}%{{else}}0%{{/if}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Songs section -->
+    <div class="songs-section">
+        <!-- Songs section header -->
+        <div class="songs-header">
+            <h2>My Songs</h2>
+        </div>
+
+        <!-- Song upload form -->
+        <form class="upload-song-form" id="upload-song-form">
+            <!-- Song title input -->
+            <div class="form-group">
+                <label for="song-title">Song Title</label>
+                <input type="text" id="song-title" name="title" required>
+            </div>
+            <!-- Genre selection -->
+            <div class="form-group">
+                <label for="song-genre">Genre</label>
+                <select id="song-genre" name="genre" required>
+                    {{#each genres}}
+                    <option value="{{this}}">{{this}}</option>
+                    {{/each}}
+                </select>
+            </div>
+            <!-- Song file upload -->
+            <div class="form-group">
+                <label for="song-file">Song File (MP3)</label>
+                <input type="file" id="song-file" name="song" accept="audio/mp3" required>
+            </div>
+            <!-- Upload button -->
+            <button type="submit" class="btn btn-success">Upload Song</button>
+        </form>
+
+        <!-- Songs grid -->
+        <div class="songs-grid">
+            {{#each user.songs}}
+            <!-- Individual song card -->
+            <div class="song-card">
+                <h3>{{title}}</h3>
+                <p>Genre: {{genre}}</p>
+                <p>Uploaded: {{formatDate uploadDate}}</p>
+                <!-- Delete button -->
+                <button class="delete-btn" data-song-id="{{_id}}">Delete</button>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+</div>
+
+<!--########################-->
+<!--##########SCRIPTS#######-->
+<!--########################-->
+{{#section 'scripts'}}
+<script>
+    // Get DOM elements for profile picture functionality
+    const profilePictureInput = document.getElementById('profile-picture-input');
+    const profilePicture = document.getElementById('profile-picture');
+    const fileInputLabel = document.querySelector('.file-input-label');
+
+    // Handle profile picture file selection
+    profilePictureInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        console.log(file)
+
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Please upload a valid image file (JPEG, PNG, or GIF)');
+            return;
+        }
+
+        // Validate file size (5MB limit)
+        if (file.size > (5 * 1024 * 1024)) {
+            alert('File size must be less than 5MB');
+            return;
+        }
+
+        // Create form data for upload
+        const formData = new FormData();
+        formData.append('profilePicture', file);
+
+        try {
+            // Show loading state
+            fileInputLabel.textContent = 'Uploading...';
+            fileInputLabel.style.background = '#6c757d';
+            fileInputLabel.style.cursor = 'wait';
+
+            // Send profile picture to server
+            const response = await fetch('/profile/update-picture', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                // Update profile picture display
+                const data = await response.json();
+                profilePicture.src = data.profilePicture + '?t=' + new Date().getTime();
+                fileInputLabel.textContent = 'Choose Profile Picture';
+                fileInputLabel.style.background = '#007bff';
+                fileInputLabel.style.cursor = 'pointer';
+            } else {
+                throw new Error('Failed to update profile picture');
+            }
+        } catch (error) {
+            console.error('Error uploading profile picture:', error);
+            alert('Failed to update profile picture. Please try again.');
+            fileInputLabel.textContent = 'Choose Profile Picture';
+            fileInputLabel.style.background = '#007bff';
+            fileInputLabel.style.cursor = 'pointer';
+        }
+    });
+
+    // Get song upload form element
+    const uploadSongForm = document.getElementById('upload-song-form');
+
+    // Handle song upload form submission
+    uploadSongForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(uploadSongForm);
+
+        try {
+            // Send song to server
+            const response = await fetch('/profile/upload-song', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                // Reload page to show new song
+                console.log('Song uploaded successfully');
+                window.location.reload();
+            } else {
+                alert('Failed to upload song');
+            }
+        } catch (error) {
+            console.error('Error uploading song:', error);
+            alert('Failed to upload song');
+        }
+    });
+
+    // Handle song deletion
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            if (!confirm('Are you sure you want to delete this song?')) return;
+
+            const songId = btn.dataset.songId;
+            try {
+                // Send delete request to server
+                const response = await fetch(`/profile/delete-song/${songId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    // Reload page to update song list
+                    window.location.reload();
+                } else {
+                    alert('Failed to delete song');
+                }
+            } catch (error) {
+                console.error('Error deleting song:', error);
+                alert('Failed to delete song');
+            }
+        });
+    });
+</script>
+{{/section}} 
+
+
+<!--########################-->
+<!--##########STYLE#########-->
+<!--########################-->
 <style>
     /* Main container for the profile page */
     .profile-container {
@@ -345,229 +584,3 @@
         background: #0056b3;
     }
 </style>
-{{/section}}
-
-<!-- Navigation bar -->
-<div class="nav-bar">
-    <div class="nav-buttons">
-        <a href="/" class="btn btn-home">Home</a>
-        <a href="/auth/logout" class="btn btn-danger">Logout</a>
-    </div>
-</div>
-
-<!-- Main profile container -->
-<div class="profile-container">
-    <!-- Profile header section -->
-    <div class="profile-header">
-        <!-- Profile picture section -->
-        <div class="profile-picture">
-            <!-- Profile picture content container -->
-            <div class="profile-picture-content">
-                {{#if user.profilePicture}}
-                    <!-- Display user's profile picture if available -->
-                    <img src="{{user.profilePicture}}" alt="Profile Picture" id="profile-picture">
-                {{else}}
-                    <!-- Display default avatar if no profile picture -->
-                    <span class="default-avatar">👤</span>
-                {{/if}}
-            </div>
-        </div>
-
-        <!-- Profile picture upload form -->
-        <div class="profile-picture-form">
-            <div class="file-input-wrapper">
-                <label for="profile-picture-input" class="file-input-label"></label>
-                <input type="file" id="profile-picture-input" accept="image/*">
-            </div>
-        </div>
-
-        <!-- User information section -->
-        <div class="profile-info">
-            <!-- Username -->
-            <h1>{{user.username}}</h1>
-            <p>Rank: {{getRank user.elo}}</p>
-            <p>ELO: {{user.elo}}</p>
-
-            {{!-- Stats grid --}}
-            <div class="profile-stats">
-                <div class="stat-box">
-                    <h3>Wins</h3>
-                    <p>{{user.wins}}</p>
-                </div>
-                <div class="stat-box">
-                    <h3>Losses</h3>
-                    <p>{{user.losses}}</p>
-                </div>
-                <div class="stat-box">
-                    <h3>Total Matches</h3>
-                    <p>{{add user.wins user.losses}}</p>
-                </div>
-                <div class="stat-box">
-                    <h3>Win Rate</h3>
-                    <p>{{#if (add user.wins user.losses)}}{{multiply (divide user.wins (add user.wins user.losses)) 100}}%{{else}}0%{{/if}}</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Songs section -->
-    <div class="songs-section">
-        <!-- Songs section header -->
-        <div class="songs-header">
-            <h2>My Songs</h2>
-        </div>
-
-        <!-- Song upload form -->
-        <form class="upload-song-form" id="upload-song-form">
-            <!-- Song title input -->
-            <div class="form-group">
-                <label for="song-title">Song Title</label>
-                <input type="text" id="song-title" name="title" required>
-            </div>
-            <!-- Genre selection -->
-            <div class="form-group">
-                <label for="song-genre">Genre</label>
-                <select id="song-genre" name="genre" required>
-                    {{#each genres}}
-                    <option value="{{this}}">{{this}}</option>
-                    {{/each}}
-                </select>
-            </div>
-            <!-- Song file upload -->
-            <div class="form-group">
-                <label for="song-file">Song File (MP4)</label>
-                <input type="file" id="song-file" name="song" accept="video/mp4" required>
-            </div>
-            <!-- Upload button -->
-            <button type="submit" class="btn btn-success">Upload Song</button>
-        </form>
-
-        <!-- Songs grid -->
-        <div class="songs-grid">
-            {{#each user.songs}}
-            <!-- Individual song card -->
-            <div class="song-card">
-                <h3>{{title}}</h3>
-                <p>Genre: {{genre}}</p>
-                <p>Uploaded: {{formatDate uploadDate}}</p>
-                <!-- Delete button -->
-                <button class="delete-btn" data-song-id="{{_id}}">Delete</button>
-            </div>
-            {{/each}}
-        </div>
-    </div>
-</div>
-
-{{#section 'scripts'}}
-<script>
-    // Get DOM elements for profile picture functionality
-    const profilePictureInput = document.getElementById('profile-picture-input');
-    const profilePicture = document.getElementById('profile-picture');
-    const fileInputLabel = document.querySelector('.file-input-label');
-
-    // Handle profile picture file selection
-    profilePictureInput.addEventListener('change', async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        // Validate file type
-        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-        if (!allowedTypes.includes(file.type)) {
-            alert('Please upload a valid image file (JPEG, PNG, or GIF)');
-            return;
-        }
-
-        // Validate file size (5MB limit)
-        if (file.size > 5 * 1024 * 1024) {
-            alert('File size must be less than 5MB');
-            return;
-        }
-
-        // Create form data for upload
-        const formData = new FormData();
-        formData.append('profilePicture', file);
-
-        try {
-            // Show loading state
-            fileInputLabel.textContent = 'Uploading...';
-            fileInputLabel.style.background = '#6c757d';
-            fileInputLabel.style.cursor = 'wait';
-
-            // Send profile picture to server
-            const response = await fetch('/profile/update-picture', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (response.ok) {
-                // Update profile picture display
-                const data = await response.json();
-                profilePicture.src = data.profilePicture + '?t=' + new Date().getTime();
-                fileInputLabel.textContent = 'Choose Profile Picture';
-                fileInputLabel.style.background = '#007bff';
-                fileInputLabel.style.cursor = 'pointer';
-            } else {
-                throw new Error('Failed to update profile picture');
-            }
-        } catch (error) {
-            console.error('Error uploading profile picture:', error);
-            alert('Failed to update profile picture. Please try again.');
-            fileInputLabel.textContent = 'Choose Profile Picture';
-            fileInputLabel.style.background = '#007bff';
-            fileInputLabel.style.cursor = 'pointer';
-        }
-    });
-
-    // Get song upload form element
-    const uploadSongForm = document.getElementById('upload-song-form');
-
-    // Handle song upload form submission
-    uploadSongForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(uploadSongForm);
-
-        try {
-            // Send song to server
-            const response = await fetch('/profile/upload-song', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (response.ok) {
-                // Reload page to show new song
-                window.location.reload();
-            } else {
-                alert('Failed to upload song');
-            }
-        } catch (error) {
-            console.error('Error uploading song:', error);
-            alert('Failed to upload song');
-        }
-    });
-
-    // Handle song deletion
-    document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', async () => {
-            if (!confirm('Are you sure you want to delete this song?')) return;
-
-            const songId = btn.dataset.songId;
-            try {
-                // Send delete request to server
-                const response = await fetch(`/profile/delete-song/${songId}`, {
-                    method: 'DELETE'
-                });
-
-                if (response.ok) {
-                    // Reload page to update song list
-                    window.location.reload();
-                } else {
-                    alert('Failed to delete song');
-                }
-            } catch (error) {
-                console.error('Error deleting song:', error);
-                alert('Failed to delete song');
-            }
-        });
-    });
-</script>
-{{/section}} 

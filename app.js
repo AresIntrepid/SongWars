@@ -61,9 +61,19 @@ const hbs = exphbs.create({
             this._sections[name] = options.fn(this);
             return null;
         },
-        // Helper to add numbers
+        // Helper to perform math operations
         add: function(a, b) {
             return a + b;
+        },
+        // Davis - added multiply, divide, eq helpers
+        multiply: function(a, b) {
+            return a * b;
+        },
+        divide: function(a, b) {
+            return a / b;
+        },
+        eq: function(a, b) {
+            return a == b;
         }
     }
 });

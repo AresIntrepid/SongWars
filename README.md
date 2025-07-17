@@ -1,11 +1,14 @@
 # Song Wars
 
+npm run dev
+localhost:3000
+
 **Song Wars** is a full-stack web application that gamifies music sharing and discovery through competitive, tournament-style battles. Users upload their favorite songs, compete in real-time tournaments with friends or the global community, and climb the ranks on a global leaderboard.
 
 ## Features
 
 - **Real-Time Multiplayer Tournaments** - Host or join live music battles with friends or other users
-- **Song Uploads** - Upload your own songs (MP3/MP4) to compete in battles
+- **Song Uploads** - Upload your own songs (MP3) to compete in battles
 - **Tournament Brackets** - Songs face off in head-to-head matchups until a winner is crowned
 - **Ranked Mode** - Compete in global, genre-based ranked matches to improve your ELO and climb the leaderboard
 - **User Profiles** - Track your stats, upload/manage your songs, and customize your profile picture
@@ -51,7 +54,7 @@
 
 ## Song Management
 
-- **Upload** - Add songs to your profile (MP3/MP4, max 10MB)
+- **Upload** - Add songs to your profile (MP3, max 10MB)
 - **Genres** - Choose from a wide range of genres for each song
 - **Delete** - Remove songs from your library at any time
 - **Song Stats** - Each song tracks its own ELO, wins, losses, and matches
