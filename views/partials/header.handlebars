@@ -16,11 +16,12 @@
             Home
         </a>
 
-        {{!-- Ranked link --}}
+        {{!-- Ranked link
         <a href="/ranked" class="nav-link {{#if (eq currentPage 'ranked')}}active{{/if}}">
             <i class="fas fa-trophy"></i>
             Ranked
         </a>
+        --}}
 
         {{!-- Conditional navigation based on authentication --}}
         {{#if user}}
@@ -75,14 +76,14 @@
         padding: 1rem 2rem;
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: right;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
     /* Brand styles */
     .brand {
         display: flex;
-        align-items: center;
+        align-items: right;
         gap: 1rem;
     }
 
@@ -101,16 +102,15 @@
     .nav-menu {
         display: flex;
         gap: 1.5rem;
-        align-items: center;
+        align-items: right;
     }
 
     .nav-link {
         color: #ccc;
         text-decoration: none;
         display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 1rem;
+        align-items: right;
+        padding: 0.5rem;
         border-radius: 4px;
         transition: all 0.3s ease;
     }
@@ -128,7 +128,7 @@
     /* User info styles */
     .user-info {
         display: flex;
-        align-items: center;
+        align-items: right;
         gap: 1rem;
     }
 

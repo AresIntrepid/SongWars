@@ -8,22 +8,6 @@
 </div>
 {{/if}}
 
-<!-- Navigation bar at the top -->
-<div class="nav-bar">
-    <div class="nav-left">
-        {{#if user}}
-            <a href="/profile" class="btn btn-primary btn-sm">Profile</a>
-            <a href="/auth/logout" class="btn btn-danger btn-sm">Logout</a>
-        {{else}}
-            <a href="/auth/login" class="btn btn-primary btn-sm">Login</a>
-            <a href="/auth/register" class="btn btn-secondary btn-sm">Register</a>
-        {{/if}}
-    </div>
-    <div class="nav-right">
-        <a href="/leaderboard" class="btn btn-dark btn-sm">Leaderboard</a>
-    </div>
-</div>
-
 <div class="landing-container">
     <h1>Welcome to Song Wars</h1>
     
@@ -32,6 +16,10 @@
         <a href="/host" class="btn btn-success">Host Game</a>
         <a href="/join" class="btn btn-info">Join Game</a>
         <a href="/ranked" class="btn btn-warning">Ranked</a>
+    </div>
+
+    <div>
+        <a href="/leaderboard" class="btn btn-dark btn-sm">Leaderboard</a>
     </div>
 
     <!-- Intro text after buttons -->
