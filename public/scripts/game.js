@@ -1,13 +1,74 @@
-// Game Client-Side Logic
+// Game Client-Side Logic - Complete Safe Version
 class SongWarsGame {
     constructor(gameCode) {
+        // Validate gameCode
+        if (!this.isValidGameCode(gameCode)) {
+            throw new Error('Invalid game code');
+        }
+        
         this.gameCode = gameCode;
         this.socket = io();
         this.timeLimit = 60;
         this.timer = null;
         this.uploadInProgress = false;
+        
+        // Add rate limiting for votes
+        this.lastVoteTime = 0;
+        this.VOTE_COOLDOWN = 1000; // 1 second between votes
+        
         this.setupSocketListeners();
         this.setupUIElements();
+    }
+
+    // Validate game code format
+    isValidGameCode(code) {
+        // Assuming game codes are alphanumeric, 4-8 characters
+        return /^[A-Za-z0-9]{4,8}$/.test(code);
+    }
+
+    // Validate file before processing
+    isValidAudioFile(file) {
+        const allowedTypes = ['audio/mp3', 'audio/wav', 'audio/ogg', 'audio/m4a'];
+        const maxSize = 10 * 1024 * 1024; // 10MB limit
+        
+        if (!allowedTypes.includes(file.type)) {
+            this.handleError('Please upload a valid audio file (MP3, WAV, OGG, or M4A)');
+            return false;
+        }
+        
+        if (file.size > maxSize) {
+            this.handleError('File too large. Maximum size is 10MB');
+            return false;
+        }
+        
+        return true;
+    }
+
+    // Validate song name
+    isValidSongName(name) {
+        if (!name || typeof name !== 'string') return false;
+        if (name.length < 1 || name.length > 100) return false;
+        // Allow letters, numbers, spaces, and common punctuation
+        return /^[A-Za-z0-9\s\-_'".!?()&]+$/.test(name);
+    }
+
+    // Validate ID format (assuming UUIDs or similar)
+    isValidId(id) {
+        return /^[A-Za-z0-9\-_]{1,50}$/.test(id);
+    }
+
+    // Sanitize text content
+    sanitizeText(text) {
+        if (typeof text !== 'string') return 'An error occurred';
+        return text.replace(/[<>]/g, '').substring(0, 200); // Remove < > and limit length
+    }
+
+    // Helper method for creating elements with text content
+    createElement(tag, className = '', textContent = '') {
+        const element = document.createElement(tag);
+        if (className) element.className = className;
+        if (textContent) element.textContent = textContent;
+        return element;
     }
 
     setupUIElements() {
@@ -21,13 +82,42 @@ class SongWarsGame {
         };
     }
 
+    // Enhanced socket listeners with validation
     setupSocketListeners() {
-        this.socket.on('game-started', (timeLimit) => this.handleGameStart(timeLimit));
-        this.socket.on('player-joined', (player) => this.handlePlayerJoin(player));
-        this.socket.on('start-tournament', (data) => this.handleTournamentStart(data));
-        this.socket.on('winner', (winner) => this.handleWinner(winner));
+        this.socket.on('game-started', (timeLimit) => {
+            if (typeof timeLimit === 'number' && timeLimit > 0 && timeLimit <= 300) {
+                this.handleGameStart(timeLimit);
+            }
+        });
+        
+        this.socket.on('player-joined', (player) => {
+            if (player && typeof player.name === 'string' && this.isValidSongName(player.name)) {
+                this.handlePlayerJoin(player);
+            }
+        });
+        
+        this.socket.on('start-tournament', (data) => {
+            if (this.validateServerData(data)) {
+                this.handleTournamentStart(data);
+            }
+        });
+        
+        this.socket.on('winner', (winner) => {
+            if (winner && typeof winner.name === 'string') {
+                this.handleWinner(winner);
+            }
+        });
+        
         this.socket.on('error', (message) => this.handleError(message));
         this.socket.on('game-ended', (reason) => this.handleGameEnd(reason));
+    }
+
+    // Validate data from server
+    validateServerData(data) {
+        if (!data || typeof data !== 'object') return false;
+        if (!Array.isArray(data.matchups)) return false;
+        if (typeof data.round !== 'number') return false;
+        return true;
     }
 
     handleGameStart(timeLimit) {
@@ -41,7 +131,7 @@ class SongWarsGame {
         const playerList = document.getElementById('player-list');
         if (playerList) {
             const li = document.createElement('li');
-            li.textContent = player.name;
+            li.textContent = player.name; // Safe - uses textContent
             li.className = 'player-item';
             playerList.appendChild(li);
         }
@@ -65,7 +155,11 @@ class SongWarsGame {
 
     handleTimeUp() {
         if (this.elements.uploadSection) {
-            this.elements.uploadSection.innerHTML = '<h3>Time\'s up! Waiting for tournament to begin...</h3>';
+            // Safe - using textContent instead of innerHTML
+            this.elements.uploadSection.innerHTML = '';
+            const message = document.createElement('h3');
+            message.textContent = "Time's up! Waiting for tournament to begin...";
+            this.elements.uploadSection.appendChild(message);
         }
         this.uploadInProgress = false;
     }
@@ -78,95 +172,240 @@ class SongWarsGame {
         }
     }
 
+    // Safe DOM creation version of renderMatchups
     renderMatchups(matchups, round) {
         if (!this.elements.matchupsContainer) return;
 
-        this.elements.matchupsContainer.innerHTML = `
-            <h3>Round ${round}</h3>
-            ${matchups.map((pair, index) => `
-                <div class="matchup">
-                    <h4>Match ${index + 1}</h4>
-                    <div class="matchup-songs">
-                        ${pair.map(song => `
-                            <div class="song-entry">
-                                <p>${song.name}</p>
-                                <audio controls src="${song.url}" class="song-player"></audio>
-                                <button onclick="game.vote('${song.id}')" class="btn btn-primary">Vote</button>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `).join('')}
-        `;
+        // Clear existing content
+        this.elements.matchupsContainer.innerHTML = '';
+
+        // Create round title
+        const roundTitle = document.createElement('h3');
+        roundTitle.textContent = `Round ${round}`;
+        this.elements.matchupsContainer.appendChild(roundTitle);
+
+        // Create each matchup
+        matchups.forEach((pair, index) => {
+            const matchupDiv = document.createElement('div');
+            matchupDiv.className = 'matchup';
+
+            // Match title
+            const matchTitle = document.createElement('h4');
+            matchTitle.textContent = `Match ${index + 1}`;
+            matchupDiv.appendChild(matchTitle);
+
+            // Songs container
+            const songsContainer = document.createElement('div');
+            songsContainer.className = 'matchup-songs';
+
+            // Create each song entry
+            pair.forEach(song => {
+                const songEntry = this.createSongEntry(song);
+                songsContainer.appendChild(songEntry);
+            });
+
+            matchupDiv.appendChild(songsContainer);
+            this.elements.matchupsContainer.appendChild(matchupDiv);
+        });
     }
 
+    createSongEntry(song) {
+        const songDiv = document.createElement('div');
+        songDiv.className = 'song-entry';
+
+        // Song name - Safe with textContent
+        const songName = document.createElement('p');
+        songName.textContent = song.name;
+        songDiv.appendChild(songName);
+
+        // Audio player
+        const audio = document.createElement('audio');
+        audio.controls = true;
+        audio.src = song.url; // Note: Still validate URLs server-side
+        audio.className = 'song-player';
+        songDiv.appendChild(audio);
+
+        // Vote button - Safe with addEventListener
+        const voteButton = document.createElement('button');
+        voteButton.textContent = 'Vote';
+        voteButton.className = 'btn btn-primary';
+        voteButton.addEventListener('click', () => {
+            this.vote(song.id);
+        });
+        songDiv.appendChild(voteButton);
+
+        return songDiv;
+    }
+
+    // Rate limiting for votes
     vote(songId) {
+        const now = Date.now();
+        if (now - this.lastVoteTime < this.VOTE_COOLDOWN) {
+            this.handleError('Please wait before voting again');
+            return;
+        }
+        
+        // Validate songId format
+        if (!this.isValidId(songId)) {
+            this.handleError('Invalid song selection');
+            return;
+        }
+        
         if (!this.uploadInProgress) {
+            this.lastVoteTime = now;
             this.socket.emit('vote', { gameCode: this.gameCode, winner: { id: songId } });
         }
     }
 
+    // Safe DOM creation version of handleWinner
     handleWinner(winner) {
         if (this.elements.bracketSection) {
             this.elements.bracketSection.style.display = 'none';
         }
+        
         if (this.elements.winnerSection) {
             this.elements.winnerSection.style.display = 'block';
-            this.elements.winnerSection.innerHTML = `
-                <div class="winner-announcement">
-                    <h2>🎉 Winner! 🎉</h2>
-                    <p>${winner.name}</p>
-                    <audio controls src="${winner.url}" class="song-player"></audio>
-                </div>
-            `;
+            
+            // Clear existing content
+            this.elements.winnerSection.innerHTML = '';
+            
+            // Create winner announcement
+            const winnerDiv = document.createElement('div');
+            winnerDiv.className = 'winner-announcement';
+            
+            // Winner title
+            const title = document.createElement('h2');
+            title.textContent = '🎉 Winner! 🎉';
+            winnerDiv.appendChild(title);
+            
+            // Winner name - Safe with textContent
+            const winnerName = document.createElement('p');
+            winnerName.textContent = winner.name;
+            winnerDiv.appendChild(winnerName);
+            
+            // Winner's song audio
+            const audio = document.createElement('audio');
+            audio.controls = true;
+            audio.src = winner.url;
+            audio.className = 'song-player';
+            winnerDiv.appendChild(audio);
+            
+            this.elements.winnerSection.appendChild(winnerDiv);
         }
     }
 
+    // Improved error handling with user-friendly messages
     handleError(message) {
-        alert(`Error: ${message}`);
+        // Sanitize error message
+        const sanitizedMessage = this.sanitizeText(message);
+        
+        // Log to console for debugging (but don't expose sensitive info)
+        console.error('Game error:', sanitizedMessage);
+        
+        // Show user-friendly error
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.textContent = sanitizedMessage;
+        errorDiv.style.cssText = 'background: #fee; color: #c33; padding: 10px; margin: 10px 0; border-radius: 5px;';
+        
+        // Remove error after 5 seconds
+        setTimeout(() => {
+            if (errorDiv.parentNode) {
+                errorDiv.parentNode.removeChild(errorDiv);
+            }
+        }, 5000);
+        
+        // Add to page
+        const container = this.elements.uploadSection || document.body;
+        container.insertBefore(errorDiv, container.firstChild);
     }
 
     handleGameEnd(reason) {
-        alert(`Game ended: ${reason}`);
+        const sanitizedReason = this.sanitizeText(reason);
+        alert(`Game ended: ${sanitizedReason}`);
         window.location.href = '/';
     }
 
+    // Enhanced submit song with validation
     async submitSong(file, songName) {
         if (!file || this.uploadInProgress) return;
         
-        this.uploadInProgress = true;
-        const reader = new FileReader();
+        // Validate file
+        if (!this.isValidAudioFile(file)) {
+            return;
+        }
         
-        reader.onload = () => {
-            const song = {
-                name: songName || file.name,
-                length: 0, // Will be set when audio loads
-                url: reader.result,
-                category: 'Unknown'
+        // Validate song name
+        const sanitizedName = songName ? songName.trim() : file.name;
+        if (!this.isValidSongName(sanitizedName)) {
+            this.handleError('Song name contains invalid characters or is too long');
+            return;
+        }
+        
+        this.uploadInProgress = true;
+        
+        try {
+            const reader = new FileReader();
+            
+            reader.onload = () => {
+                const song = {
+                    name: sanitizedName,
+                    length: 0,
+                    url: reader.result,
+                    category: 'Unknown'
+                };
+
+                // Create temporary audio element to get song duration
+                const audio = new Audio();
+                
+                audio.addEventListener('loadedmetadata', () => {
+                    song.length = Math.round(audio.duration);
+                    
+                    // Validate duration
+                    if (song.length < 1 || song.length > 600) { // 1 second to 10 minutes
+                        this.handleError('Song must be between 1 second and 10 minutes long');
+                        this.uploadInProgress = false;
+                        return;
+                    }
+                    
+                    this.socket.emit('submit-song', { gameCode: this.gameCode, song });
+                });
+                
+                audio.addEventListener('error', () => {
+                    this.handleError('Invalid audio file');
+                    this.uploadInProgress = false;
+                });
+                
+                // Set source after event listeners are attached
+                audio.src = reader.result;
             };
 
-            // Create temporary audio element to get song duration
-            const audio = new Audio(reader.result);
-            audio.addEventListener('loadedmetadata', () => {
-                song.length = Math.round(audio.duration);
-                this.socket.emit('submit-song', { gameCode: this.gameCode, song });
-            });
-        };
+            reader.onerror = () => {
+                this.handleError('Error reading file');
+                this.uploadInProgress = false;
+            };
 
-        reader.onerror = () => {
-            this.handleError('Error reading file');
+            reader.readAsDataURL(file);
+            
+        } catch (error) {
+            this.handleError('Failed to process file');
             this.uploadInProgress = false;
-        };
-
-        reader.readAsDataURL(file);
+        }
     }
 }
 
-// Initialize game instance when page loads
+// Safe initialization
 let game;
 document.addEventListener('DOMContentLoaded', () => {
-    const gameCode = document.getElementById('game-code')?.textContent;
-    if (gameCode) {
-        game = new SongWarsGame(gameCode);
+    try {
+        const gameCodeElement = document.getElementById('game-code');
+        const gameCode = gameCodeElement?.textContent?.trim();
+        
+        if (gameCode) {
+            game = new SongWarsGame(gameCode);
+        }
+    } catch (error) {
+        console.error('Failed to initialize game:', error);
+        alert('Failed to initialize game. Please refresh the page.');
     }
 });
