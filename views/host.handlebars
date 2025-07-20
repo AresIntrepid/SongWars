@@ -67,13 +67,17 @@
     </div>
 </div>
 
+{{#section 'scripts'}}
 <script>
+    console.log('Host page');
+
     const socket = io();
     const gameCode = '{{gameCode}}';
     let playerCount = {{playerCount}};
 
     // Copy game code functionality
     document.getElementById('copy-code').addEventListener('click', () => {
+        console.log('Copying game code:', gameCode);
         navigator.clipboard.writeText(gameCode)
             .then(() => {
                 const btn = document.getElementById('copy-code');
@@ -85,6 +89,7 @@
                 }, 2000);
             })
             .catch(err => console.error('Failed to copy code:', err));
+        alert('Copied game code');
     });
 
     // Initialize host socket connection
@@ -133,7 +138,7 @@
         const submissionList = document.getElementById('submission-list');
         const li = document.createElement('li');
         li.className = 'submission-item';
-        li.innerHTML = `${data.playerName} submitted "${data.songName}"`;
+        li.textContent = data.playerName + ' submitted "' + data.songName + '"';
         submissionList.appendChild(li);
     });
 
@@ -151,10 +156,11 @@
             
             if (timeLeft < 0) {
                 clearInterval(timer);
-                timerDisplay.textContent = 'Time's up!';
+                timerDisplay.textContent = 'Time\'s up!';
                 document.getElementById('status-message').textContent = 
                     'Song submission phase ended. Tournament starting...';
             }
         }, 1000);
     }
 </script>
+{{/section}}
