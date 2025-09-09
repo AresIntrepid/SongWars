@@ -4,8 +4,8 @@
     <div class="brand">
         <a href="/" class="logo">
             <img src="/images/logo.png" alt="SongWars Logo">
+            <h1 class="site-title">SongWars</h1>
         </a>
-        <h1 class="site-title">SongWars</h1>
     </div>
 
     {{!-- Navigation menu --}}
@@ -55,15 +55,15 @@
     {{#if user}}
         <div class="user-info">
             {{!-- Profile picture --}}
-            <div class="profile-picture">
+            <a href="/profile" class="profile-picture">
                 <img src="{{user.profilePicture}}" alt="{{user.username}}'s profile">
-            </div>
+            </a>
 
             {{!-- Username and ELO --}}
-            <div class="user-details">
+            <a href="/profile" class="user-details">
                 <span class="username">{{user.username}}</span>
                 <span class="elo">ELO: {{user.elo}}</span>
-            </div>
+            </a>
         </div>
     {{/if}}
 </header>
@@ -83,8 +83,15 @@
     /* Brand styles */
     .brand {
         display: flex;
-        align-items: right;
+        align-items: center;
         gap: 1rem;
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        text-decoration: none;
     }
 
     .logo img {
@@ -137,6 +144,12 @@
         height: 40px;
         border-radius: 50%;
         overflow: hidden;
+        cursor: pointer;
+        transition: opacity 0.2s ease;
+    }
+
+    .profile-picture:hover {
+        opacity: 0.8;
     }
 
     .profile-picture img {
@@ -148,6 +161,13 @@
     .user-details {
         display: flex;
         flex-direction: column;
+        text-decoration: none;
+        cursor: pointer;
+        transition: opacity 0.2s ease;
+    }
+
+    .user-details:hover {
+        opacity: 0.8;
     }
 
     .username {

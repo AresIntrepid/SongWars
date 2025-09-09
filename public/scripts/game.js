@@ -1,6 +1,6 @@
-// Game Client-Side Logic - Complete Safe Version
+// Enhanced Game Client-Side Logic
 class SongWarsGame {
-    constructor(gameCode) {
+    constructor(gameCode, isHost = false) {
         // Validate gameCode
         if (!this.isValidGameCode(gameCode)) {
             throw new Error('Invalid game code');
@@ -8,9 +8,12 @@ class SongWarsGame {
         
         this.gameCode = gameCode;
         this.socket = io();
+        this.isHost = isHost;
+        //default player time limit to upload song
         this.timeLimit = 60;
         this.timer = null;
         this.uploadInProgress = false;
+        this.playerCount = 0;
         
         // Add rate limiting for votes
         this.lastVoteTime = 0;
@@ -18,6 +21,156 @@ class SongWarsGame {
         
         this.setupSocketListeners();
         this.setupUIElements();
+        
+        // Initialize based on role
+        if (this.isHost) {
+            this.initializeHost();
+        } else {
+            this.initializePlayer();
+        }
+    }
+
+    // Initialize host-specific functionality
+    initializeHost() {
+        this.socket.emit('host-game', this.gameCode);
+        this.setupHostElements();
+    }
+
+    // Initialize player-specific functionality  
+    initializePlayer() {
+        // Player initialization logic here
+    }
+
+    // Setup host-specific UI elements
+    setupHostElements() {
+        this.hostElements = {
+            ...this.elements,
+            playerCount: document.getElementById('player-count'),
+            playerList: document.getElementById('player-list'),
+            startButton: document.getElementById('start-game'),
+            copyButton: document.getElementById('copy-code'),
+            timeLimitInput: document.getElementById('time-limit'),
+            minPlayersInput: document.getElementById('min-players'),
+            gameStatus: document.getElementById('game-status'),
+            statusMessage: document.getElementById('status-message'),
+            submissionList: document.getElementById('submission-list')
+        };
+
+        this.setupHostEventListeners();
+    }
+
+    // Setup host-specific event listeners
+    setupHostEventListeners() {
+        // Copy game code functionality
+        if (this.hostElements.copyButton) {
+            this.hostElements.copyButton.addEventListener('click', () => {
+                this.copyGameCode();
+            });
+        }
+
+        // Start game button
+        if (this.hostElements.startButton) {
+            this.hostElements.startButton.addEventListener('click', () => {
+                this.startGameAsHost();
+            });
+        }
+    }
+
+    // Copy game code functionality
+    copyGameCode() {
+        navigator.clipboard.writeText(this.gameCode)
+            .then(() => {
+                const btn = this.hostElements.copyButton;
+                const copyText = btn.querySelector('.copy-text');
+                const copiedText = btn.querySelector('.copied-text');
+                
+                if (copyText && copiedText) {
+                    copyText.style.display = 'none';
+                    copiedText.style.display = 'inline';
+                    
+                    setTimeout(() => {
+                        copyText.style.display = 'inline';
+                        copiedText.style.display = 'none';
+                    }, 2000);
+                }
+            })
+            .catch(err => {
+                console.error('Failed to copy code:', err);
+                this.handleError('Failed to copy code to clipboard');
+            });
+    }
+
+    // Start game as host
+    startGameAsHost() {
+        const timeLimit = parseInt(this.hostElements.timeLimitInput?.value || 60);
+        const minPlayers = parseInt(this.hostElements.minPlayersInput?.value || 2);
+        
+        if (this.playerCount < minPlayers) {
+            this.handleError(`Need at least ${minPlayers} players to start!`);
+            return;
+        }
+
+        this.socket.emit('start-game', { 
+            gameCode: this.gameCode, 
+            timeLimit,
+            minPlayers
+        });
+
+        this.showGameStatus();
+        this.startTimer(timeLimit);
+    }
+
+    // Show game status section
+    showGameStatus() {
+        if (this.hostElements.gameStatus) {
+            this.hostElements.gameStatus.style.display = 'block';
+        }
+        if (this.hostElements.statusMessage) {
+            this.hostElements.statusMessage.textContent = 'Game Started! Players are now submitting songs...';
+        }
+    }
+
+    // Update player count display
+    updatePlayerCount(count) {
+        this.playerCount = count;
+        if (this.hostElements.playerCount) {
+            this.hostElements.playerCount.textContent = count;
+        }
+    }
+
+    // Update player list display
+    updatePlayerList(players) {
+        if (!this.hostElements.playerList) return;
+
+        if (players.length === 0) {
+            this.hostElements.playerList.innerHTML = '<li class="player-item">Waiting for players to join...</li>';
+        } else {
+            this.hostElements.playerList.innerHTML = players.map(player => 
+                `<li class="player-item">${this.sanitizeText(player.name)}</li>`
+            ).join('');
+        }
+    }
+
+    // Add player to list
+    addPlayerToList(playerName) {
+        if (!this.hostElements.playerList) return;
+
+        // Clear waiting message if this is first player
+        if (this.playerCount === 1) {
+            this.hostElements.playerList.innerHTML = '';
+        }
+
+        const li = this.createElement('li', 'player-item', this.sanitizeText(playerName));
+        this.hostElements.playerList.appendChild(li);
+    }
+
+    // Handle song submission for host view
+    handleSongSubmissionForHost(data) {
+        if (!this.hostElements.submissionList) return;
+
+        const li = this.createElement('li', 'submission-item', 
+            `${this.sanitizeText(data.playerName)} submitted "${this.sanitizeText(data.songName)}"`);
+        this.hostElements.submissionList.appendChild(li);
     }
 
     // Validate game code format
@@ -84,15 +237,43 @@ class SongWarsGame {
 
     // Enhanced socket listeners with validation
     setupSocketListeners() {
-        this.socket.on('game-started', (timeLimit) => {
+        // Host-specific events
+        if (this.isHost) {
+            this.socket.on('host-joined', (data) => {
+                console.log('Host joined successfully:', data);
+                this.updatePlayerCount(data.playerCount);
+                this.updatePlayerList(data.players || []);
+            });
+
+            this.socket.on('song-submitted', (data) => {
+                if (data && data.playerName && data.songName) {
+                    this.handleSongSubmissionForHost(data);
+                }
+            });
+        }
+
+        // Common events for both host and players
+        this.socket.on('game-started', (data) => {
+            const timeLimit = typeof data === 'number' ? data : data?.timeLimit;
             if (typeof timeLimit === 'number' && timeLimit > 0 && timeLimit <= 300) {
                 this.handleGameStart(timeLimit);
             }
         });
         
-        this.socket.on('player-joined', (player) => {
-            if (player && typeof player.name === 'string' && this.isValidSongName(player.name)) {
-                this.handlePlayerJoin(player);
+        this.socket.on('player-joined', (data) => {
+            if (data && typeof data.name === 'string' && this.isValidSongName(data.name)) {
+                this.handlePlayerJoin(data);
+                if (this.isHost && typeof data.playerCount === 'number') {
+                    this.updatePlayerCount(data.playerCount);
+                    this.addPlayerToList(data.name);
+                }
+            }
+        });
+
+        this.socket.on('player-left', (data) => {
+            if (this.isHost && data) {
+                this.playerCount = Math.max(0, this.playerCount - 1);
+                this.updatePlayerCount(this.playerCount);
             }
         });
         
@@ -123,13 +304,17 @@ class SongWarsGame {
     handleGameStart(timeLimit) {
         this.timeLimit = timeLimit;
         this.startTimer();
-        this.elements.uploadSection.style.display = 'block';
-        this.elements.waitingSection.style.display = 'none';
+        if (this.elements.uploadSection) {
+            this.elements.uploadSection.style.display = 'block';
+        }
+        if (this.elements.waitingSection) {
+            this.elements.waitingSection.style.display = 'none';
+        }
     }
 
     handlePlayerJoin(player) {
         const playerList = document.getElementById('player-list');
-        if (playerList) {
+        if (playerList && !this.isHost) { // Only for non-host players
             const li = document.createElement('li');
             li.textContent = player.name; // Safe - uses textContent
             li.className = 'player-item';
@@ -394,15 +579,18 @@ class SongWarsGame {
     }
 }
 
-// Safe initialization
+// Safe initialization with host detection
 let game;
 document.addEventListener('DOMContentLoaded', () => {
     try {
         const gameCodeElement = document.getElementById('game-code');
         const gameCode = gameCodeElement?.textContent?.trim();
         
+        // Detect if this is a host page (you can adjust this logic)
+        const isHost = document.getElementById('start-game') !== null;
+        
         if (gameCode) {
-            game = new SongWarsGame(gameCode);
+            game = new SongWarsGame(gameCode, isHost);
         }
     } catch (error) {
         console.error('Failed to initialize game:', error);

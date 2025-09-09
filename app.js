@@ -16,6 +16,7 @@ const { attachUser } = require('./middleware/auth');
 const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth');
 const rankedRouter = require('./routes/ranked');
+const profileRouter = require('./routes/profile');
 
 // Initialize Express app
 const app = express();
@@ -124,6 +125,7 @@ app.use(attachUser);
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/ranked', rankedRouter);
+app.use('/profile', profileRouter);
 
 // Socket.IO Game Logic
 io.on('connection', (socket) => {
@@ -185,7 +187,7 @@ io.on('connection', (socket) => {
         socket.join(gameCode);
         
         // Notify other players
-        socket.to(gameCode).emit('player-joined', { name: sanitizedName });
+        socket.to(gameCode).emit('player-joined', { name: sanitizedName, playerCount: game.players.size });
         
         console.log(`Player ${sanitizedName} joined game ${gameCode}`);
     });
@@ -279,6 +281,54 @@ io.on('connection', (socket) => {
             game.status = 'finished';
         }
     });
+    // Handle host joining their own game
+socket.on('host-game', (gameCode) => {
+    console.log(`Host connecting to game ${gameCode}`);
+    
+    // Validate game code
+    if (!gameCode || !/^[A-Za-z0-9]{4,8}$/.test(gameCode)) {
+        socket.emit('error', 'Invalid game code');
+        return;
+    }
+    
+    // Get or create game
+    if (!games.has(gameCode)) {
+        games.set(gameCode, {
+            players: new Map(),
+            songs: new Map(),
+            status: 'waiting',
+            round: 0,
+            bracket: [],
+            timeLimit: 60,
+            hostId: socket.id  // Set this socket as the host
+        });
+    }
+    
+    const game = games.get(gameCode);
+    
+    // Set as host if not already set
+    if (!game.hostId) {
+        game.hostId = socket.id;
+    }
+    
+    // Join the room to receive updates
+    socket.join(gameCode);
+    
+    // Send current game state to host
+    const playerList = Array.from(game.players.values()).map(p => ({
+        id: p.id,
+        name: p.name
+    }));
+    
+    socket.emit('host-joined', {
+        gameCode: gameCode,
+        players: playerList,
+        playerCount: game.players.size,
+        status: game.status
+    });
+    
+    console.log(`Host joined game ${gameCode}. Current players: ${game.players.size}`);
+    });
     
     // Handle disconnect
     socket.on('disconnect', () => {
@@ -300,7 +350,7 @@ io.on('connection', (socket) => {
                 }
             }
         }
-    });
+    });     
 });
 
 // Helper function to start tournament
@@ -351,3 +401,4 @@ server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
     console.log(`Socket.IO server ready`);
 });
+

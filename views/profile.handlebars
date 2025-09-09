@@ -3,7 +3,7 @@
     <!-- Profile header section -->
     <div class="profile-header">
         <!-- Profile picture section -->
-        <div class="profile-picture">
+        <div class="profile-picture" id="profile-picture-container">
             <!-- Profile picture content container -->
             <div class="profile-picture-content">
                 {{#if user.profilePicture}}
@@ -14,15 +14,14 @@
                     <span class="default-avatar">👤</span>
                 {{/if}}
             </div>
-        </div>
-
-        <!-- Profile picture upload form -->
-        <div class="profile-picture-form">
-            <div class="file-input-wrapper">
-                <label for="profile-picture-input" class="file-input-label"></label>
-                <input type="file" id="profile-picture-input" accept="image/*">
+            <div class="upload-overlay">
+                <i class="fas fa-camera"></i>
+                <span>Choose photo</span>
             </div>
         </div>
+
+        <!-- Hidden file input -->
+        <input type="file" id="profile-picture-input" accept="image/*" style="display: none;">
 
         <!-- User information section -->
         <div class="profile-info">
@@ -93,6 +92,11 @@
                 <h3>{{title}}</h3>
                 <p>Genre: {{genre}}</p>
                 <p>Uploaded: {{formatDate uploadDate}}</p>
+                <!-- Audio player -->
+                <audio controls class="song-player">
+                    <source src="{{url}}" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
                 <!-- Delete button -->
                 <button class="delete-btn" data-song-id="{{_id}}">Delete</button>
             </div>
@@ -107,6 +111,11 @@
     const profilePictureInput = document.getElementById('profile-picture-input');
     const profilePicture = document.getElementById('profile-picture');
     const fileInputLabel = document.querySelector('.file-input-label');
+    
+    // Make profile picture clickable
+    document.getElementById('profile-picture-container').addEventListener('click', () => {
+    document.getElementById('profile-picture-input').click();
+    });
 
     // Handle profile picture file selection
     profilePictureInput.addEventListener('change', async (e) => {
@@ -245,8 +254,8 @@
     /* Profile picture container with circular shape */
     .profile-picture {
         position: relative;
-        width: 150px;
-        height: 150px;
+        width: 70px;
+        height: 70px;
         margin: 0 auto;
         border-radius: 50%;
         overflow: hidden;
@@ -292,16 +301,24 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0,0,0,0.5);
+        background: rgba(0, 0, 0, 0.6);
         border-radius: 50%;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
+        text-align: center;
         opacity: 0;
-        transition: opacity 0.2s;
+        transition: opacity 0.3s ease;
         cursor: pointer;
         color: white;
-        font-size: 16px;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .profile-picture .upload-overlay i {
+        font-size: 24px;
+        margin-bottom: 8px;
     }
 
     /* Show overlay on hover */
@@ -406,6 +423,16 @@
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
         gap: 20px;
+    }
+
+    .song-player {
+        width: 100%;
+        margin: 10px 0;
+        outline: none;
+    }
+
+    .song-player::-webkit-media-controls-panel {
+        background-color: #f8f9fa;
     }
 
     /* Individual song card styling */
