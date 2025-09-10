@@ -1,11 +1,10 @@
 /* Global Variables */
 :root {
-    --kahoot-purple: #46178f;
+    --kahoot-purple: #ffffff;
     --kahoot-pink: #f14d9e;
     --kahoot-blue: #2d9cdb;
-    --kahoot-yellow: #ffd700;
-    --background-color: #f6f7fb;
-    --text-color: #333;
+    --background-color: #111111;
+    --text-color-black: #000000;
     --border-radius: 4px;
     --box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
@@ -16,7 +15,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: var(--background-color);
-    color: var(--text-color);
+    color: var(--text-color-black);
     line-height: 1.6;
 }
 
@@ -62,21 +61,21 @@ h1 {
 }
 
 .btn-primary {
-    background-color: var(--kahoot-purple);
-    color: white;
+    background-color: white;
+    color: black;
 }
 
 .btn-primary:hover {
-    background-color: #5a1cb8;
+    background-color: rgb(173, 173, 173);
 }
 
 .btn-secondary {
-    background-color: var(--kahoot-pink);
-    color: white;
+    background-color: white;
+    color: black;
 }
 
 .btn-secondary:hover {
-    background-color: #ff60b1;
+    background-color: rgb(173, 173, 173);
 }
 
 /* Forms */
@@ -282,7 +281,7 @@ h1 {
     color: var(--kahoot-purple);
     font-size: 0.9rem;
     background-color: white;
-    border-top: 3px solid var(--kahoot-pink);
+    border-top: 3px solid #ffa200;
 }
 
 /* Animations */

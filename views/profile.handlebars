@@ -1,54 +1,62 @@
 
 <div class="profile-container">
-    <!-- Profile header section -->
-    <div class="profile-header">
-        <!-- Profile picture section -->
-        <div class="profile-picture" id="profile-picture-container">
-            <!-- Profile picture content container -->
-            <div class="profile-picture-content">
-                {{#if user.profilePicture}}
-                    <!-- Display user's profile picture if available -->
-                    <img src="{{user.profilePicture}}" alt="Profile Picture" id="profile-picture">
-                {{else}}
-                    <!-- Display default avatar if no profile picture -->
-                    <span class="default-avatar">👤</span>
-                {{/if}}
-            </div>
-            <div class="upload-overlay">
-                <i class="fas fa-camera"></i>
-                <span>Choose photo</span>
-            </div>
-        </div>
-
-        <!-- Hidden file input -->
-        <input type="file" id="profile-picture-input" accept="image/*" style="display: none;">
-
         <!-- User information section -->
         <div class="profile-info">
             <!-- Username -->
             <h1>{{user.username}}</h1>
-            <p>Rank: {{getRank user.elo}}</p>
-            <p>ELO: {{user.elo}}</p>
 
-            {{!-- Stats grid --}}
-            <div class="profile-stats">
-                <div class="stat-box">
-                    <h3>Wins</h3>
-                    <p>{{user.wins}}</p>
+            <!-- Profile header section -->
+            <div class="profile-header">
+                <!-- Profile picture section -->
+                <div class="profile-picture1">
+                    <!-- Profile picture content container -->
+                    <div class="profile-picture1-content">
+                        {{#if user.profilePicture}}
+                            <!-- Display user's profile picture if available -->
+                            <img src="{{user.profilePicture}}" alt="Profile Picture" id="profile-picture1">
+                        {{else}}
+                            <!-- Display default avatar if no profile picture -->
+                            <span class="default-avatar">👤</span>
+                        {{/if}}
+                    </div>
                 </div>
-                <div class="stat-box">
-                    <h3>Losses</h3>
-                    <p>{{user.losses}}</p>
+
+                <!-- Profile picture upload form -->
+                <div class="profile-picture1-form">
+                    <div class="file-input-wrapper">
+                        <label for="profile-picture1-input" class="file-input-label"></label>
+                        <input type="file" id="profile-picture1-input" accept="image/*">
+                    </div>
                 </div>
-                <div class="stat-box">
-                    <h3>Total Matches</h3>
-                    <p>{{add user.wins user.losses}}</p>
+
+                <!-- Hidden file input -->
+                <input type="file" id="profile-picture-input" accept="image/*" style="display: none;">
+
+                <div>
+                    <p>Rank: {{getRank user.elo}}</p>
+                    <p>ELO: {{user.elo}}</p>
                 </div>
-                <div class="stat-box">
-                    <h3>Win Rate</h3>
-                    <p>{{#if (add user.wins user.losses)}}{{multiply (divide user.wins (add user.wins user.losses)) 100}}%{{else}}0%{{/if}}</p>
+
+
+                {{!-- Stats grid --}}
+                <div class="profile-stats">
+                    <div class="stat-box">
+                        <h3>Wins</h3>
+                        <p>{{user.wins}}</p>
+                    </div>
+                    <div class="stat-box">
+                        <h3>Losses</h3>
+                        <p>{{user.losses}}</p>
+                    </div>
+                    <div class="stat-box">
+                        <h3>Total Matches</h3>
+                        <p>{{add user.wins user.losses}}</p>
+                    </div>
+                    <div class="stat-box">
+                        <h3>Win Rate</h3>
+                        <p>{{#if (add user.wins user.losses)}}{{multiply (divide user.wins (add user.wins user.losses)) 100}}%{{else}}0%{{/if}}</p>
+                    </div>
                 </div>
-            </div>
         </div>
     </div>
 
@@ -108,8 +116,8 @@
 {{#section 'scripts'}}
 <script>
     // Get DOM elements for profile picture functionality
-    const profilePictureInput = document.getElementById('profile-picture-input');
-    const profilePicture = document.getElementById('profile-picture');
+    const profilePictureInput = document.getElementById('profile-picture1-input');
+    const profilePicture = document.getElementById('profile-picture1');
     const fileInputLabel = document.querySelector('.file-input-label');
     
     // Make profile picture clickable
@@ -235,8 +243,8 @@
     /* Main container for the profile page */
     .profile-container {
         max-width: 1200px;
-        margin: 40px auto;
-        padding: 20px;Choose Profile Picture
+        margin: 40px;
+        padding: 20px;
     }
 
     /* Header section containing profile picture and user info */
@@ -245,18 +253,17 @@
         align-items: center;
         gap: 30px;
         margin-bottom: 40px;
-        background: #fff;
+        background: #252525;
         padding: 30px;
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
     /* Profile picture container with circular shape */
-    .profile-picture {
+    .profile-picture1 {
         position: relative;
         width: 70px;
         height: 70px;
-        margin: 0 auto;
         border-radius: 50%;
         overflow: hidden;
         background-color: #f0f0f0;
@@ -264,28 +271,24 @@
         justify-content: center;
         align-items: center;
         font-size: 60px;
-        color: #999;
+        color: white;
         cursor: pointer;
         transition: all 0.3s ease;
     }
 
+    .profile-picture1 img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
     /* Container for profile picture content */
-    .profile-picture-content {
+    .profile-picture1-content {
         width: 100%;
         height: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
-    }
-
-    /* Styling for the actual profile picture image */
-    .profile-picture img {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 3px solid #fff;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
     /* Default avatar emoji styling */
@@ -295,7 +298,7 @@
     }
 
     /* Overlay that appears on hover for changing profile picture */
-    .profile-picture .upload-overlay {
+    .profile-picture1 .upload-overlay {
         position: absolute;
         top: 0;
         left: 0;
@@ -322,12 +325,12 @@
     }
 
     /* Show overlay on hover */
-    .profile-picture:hover .upload-overlay {
+    .profile-picture1:hover .upload-overlay {
         opacity: 1;
     }
 
     /* Loading state for upload overlay */
-    .profile-picture .upload-overlay.uploading {
+    .profile-picture1 .upload-overlay.uploading {
         background: rgba(0,0,0,0.7);
         cursor: wait;
     }
@@ -340,7 +343,12 @@
     /* Username styling */
     .profile-info h1 {
         margin: 0 0 10px 0;
-        color: #333;
+        color: #007bff;
+    }
+
+    .profile-info p {
+        color: #ffa200;
+        font-weight: bold;
     }
 
     /* Stats grid layout */
@@ -376,7 +384,7 @@
 
     /* Songs section container */
     .songs-section {
-        background: #fff;
+        background: #252525;
         padding: 30px;
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -385,6 +393,10 @@
     /* Songs section header */
     .songs-header {
         margin-bottom: 20px;
+    }
+
+    .songs-header h2 {
+        color: #00a2ff;
     }
 
     /* Song upload form styling */
@@ -566,7 +578,7 @@
     }
 
     /* Profile picture upload form */
-    .profile-picture-form {
+    .profile-picture1-form {
         margin-top: 1rem;
         text-align: center;
     }

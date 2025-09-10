@@ -2,10 +2,15 @@
 <header class="header">
     {{!-- Logo and brand name --}}
     <div class="brand">
-        <a href="/" class="logo">
+        {{!-- Logo and brand name 
+        <a href="/">
             <img src="/images/logo.png" alt="SongWars Logo">
             <h1 class="site-title">SongWars</h1>
         </a>
+        --}}
+
+        <h1 class="logo-title">sw</h1>
+        <h1 class="site-title">SongWars</h1>
     </div>
 
     {{!-- Navigation menu --}}
@@ -15,13 +20,6 @@
             <i class="fas fa-home"></i>
             Home
         </a>
-
-        {{!-- Ranked link
-        <a href="/ranked" class="nav-link {{#if (eq currentPage 'ranked')}}active{{/if}}">
-            <i class="fas fa-trophy"></i>
-            Ranked
-        </a>
-        --}}
 
         {{!-- Conditional navigation based on authentication --}}
         {{#if user}}
@@ -72,12 +70,11 @@
 <style>
     /* Header container styles */
     .header {
-        background: #2a2a2a;
-        padding: 1rem 2rem;
+        background: #252525;
+        padding: 0rem 2rem;
         display: flex;
-        justify-content: space-between;
-        align-items: right;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        justify-content: flex-end;
+        align-items: center;
     }
 
     /* Brand styles */
@@ -85,6 +82,7 @@
         display: flex;
         align-items: center;
         gap: 1rem;
+        margin-right: auto;
     }
 
     .logo {
@@ -94,22 +92,22 @@
         text-decoration: none;
     }
 
-    .logo img {
-        height: 40px;
-        width: auto;
+    .logo-title {
+        color: #00a2ff;
+        font-size: 2.5rem;
     }
 
     .site-title {
         color: #fff;
-        font-size: 1.5rem;
-        margin: 0;
+        font-size: 2.5rem;
     }
 
     /* Navigation menu styles */
     .nav-menu {
         display: flex;
         gap: 1.5rem;
-        align-items: right;
+        align-items: center;
+        margin-right: 2rem;
     }
 
     .nav-link {
@@ -135,13 +133,13 @@
     /* User info styles */
     .user-info {
         display: flex;
-        align-items: right;
+        align-items: center;
         gap: 1rem;
     }
 
     .profile-picture {
-        width: 40px;
-        height: 40px;
+        width: 50px;
+        height: 50px;
         border-radius: 50%;
         overflow: hidden;
         cursor: pointer;
@@ -176,7 +174,8 @@
     }
 
     .elo {
-        color: #007bff;
+        color: #ffa200;
         font-size: 0.9rem;
+        font-weight: bold;
     }
 </style> 
