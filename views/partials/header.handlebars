@@ -2,15 +2,10 @@
 <header class="header">
     {{!-- Logo and brand name --}}
     <div class="brand">
-        {{!-- Logo and brand name 
-        <a href="/">
-            <img src="/images/logo.png" alt="SongWars Logo">
+        <a href="/" class="logo">
+            <img src="/images/logo.png" alt="SongWars Logo" style="width: 10%; height:auto;">
             <h1 class="site-title">SongWars</h1>
         </a>
-        --}}
-
-        <h1 class="logo-title">sw</h1>
-        <h1 class="site-title">SongWars</h1>
     </div>
 
     {{!-- Navigation menu --}}
@@ -53,7 +48,7 @@
     {{#if user}}
         <div class="user-info">
             {{!-- Profile picture --}}
-            <a href="/profile" class="profile-picture">
+            <a href="/profile" class="profile-picture-header">
                 <img src="{{user.profilePicture}}" alt="{{user.username}}'s profile">
             </a>
 
@@ -100,6 +95,7 @@
     .site-title {
         color: #fff;
         font-size: 2.5rem;
+        margin-bottom: 1rem;
     }
 
     /* Navigation menu styles */
@@ -137,7 +133,7 @@
         gap: 1rem;
     }
 
-    .profile-picture {
+    .profile-picture-header {
         width: 50px;
         height: 50px;
         border-radius: 50%;
@@ -146,11 +142,11 @@
         transition: opacity 0.2s ease;
     }
 
-    .profile-picture:hover {
+    .profile-picture-header:hover {
         opacity: 0.8;
     }
 
-    .profile-picture img {
+    .profile-picture-header img {
         width: 100%;
         height: 100%;
         object-fit: cover;
