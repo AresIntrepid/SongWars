@@ -1,8 +1,5 @@
 # Song Wars
 
-npm run dev
-localhost:3000
-
 **Song Wars** is a full-stack web application that gamifies music sharing and discovery through competitive, tournament-style battles. Users upload their favorite songs, compete in real-time tournaments with friends or the global community, and climb the ranks on a global leaderboard.
 
 ## Features
