@@ -106,7 +106,7 @@ graph TB
 
 ## License
 
-This project is licensed under [insert licensce].
+This project is licensed.
 
 ---
 
